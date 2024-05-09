@@ -27,4 +27,8 @@ Route::middleware('auth')->group(function () {
 
 Route::resource("/comment", CommentController::class)->only(["index", "store"])->middleware(['auth', 'verified']);
 
+Route::get("/gestion_de_proyectos", function() {
+    return Inertia::render("GProyecto");
+})->name("gproyecto");
+
 require __DIR__.'/auth.php';
