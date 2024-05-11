@@ -21,9 +21,9 @@ export default function Authenticated({ user, header, children }) {
                             </div>
 
                             <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink href={route("gproyecto")}
-                                active={route().current("gproyecto")}>
-                                    Gestión de Proyectos
+                                <NavLink href={route("projects-contracts.index")}
+                                active={route().current("projects-contracts.index")}>
+                                    Project Review
                                 </NavLink>
                                 <NavLink href={route('comment.index')} active={route().current('comment.index')}>
                                     Comment

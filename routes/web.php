@@ -5,6 +5,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\ProjectContractController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -27,8 +28,13 @@ Route::middleware('auth')->group(function () {
 
 Route::resource("/comment", CommentController::class)->only(["index", "store"])->middleware(['auth', 'verified']);
 
-Route::get("/gestion_de_proyectos", function() {
-    return Inertia::render("GProyecto");
-})->name("gproyecto");
+Route::middleware('auth')->group(function () {
+    Route::get('/projects-contracts', [ProjectContractController::class, 'index'])->name('projects-contracts.index');
+    Route::post('/projects-contracts', [ProjectContractController::class, 'store'])->name('projects-contracts.store');
+    // Route::delete('/projects-contracts/{id}', [ProjectContractController::class, 'destroy'])->name('projects-contracts.destroy');
+    Route::post('/approve/{id}', [ProjectContractController::class, 'handleApprove'])->name('approve');
+    Route::post('/archive/{id}', [ProjectContractController::class, 'handleArchive'])->name('archive');
+});
+
 
 require __DIR__.'/auth.php';
