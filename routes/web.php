@@ -43,6 +43,11 @@ Route::middleware(['auth', RoleMiddleware::class . ':gerente'])->group(function 
 });
 
 
-
+Route::get("/projects", function() {
+    $userID = Auth::getUser()->id;
+    $user = User::findOrFail($userID);
+    $role = $user->getRoleNames()->first();
+    return Inertia::render("Project", ["role" => $role]);
+})->name("projects");
 
 require __DIR__ . '/auth.php';

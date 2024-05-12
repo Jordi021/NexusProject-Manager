@@ -10,7 +10,7 @@
 # Inspirate
     php artisan inspire
 # Git
-    1.git add .
-    2.git config --global core.autocrlf true (opcional)
+    1.git config --global core.autocrlf true (opcional en caso de warnigs)
+    2.git add .
     3.git commit -m "" 
     4.git push origin main

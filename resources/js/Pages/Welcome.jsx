@@ -8,7 +8,7 @@ export default function welcome({ auth, role}) {
             header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Welcome</h2>}
             role={role}
         >
-            <Head title="welcome" />
+            <Head title="Welcome" />
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">

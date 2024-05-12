@@ -47,14 +47,14 @@ export default function Authenticated({ user, header, children, role }) {
                                 {role === "jefe" && (
                                     <>
                                         <NavLink
-                                        // href={route(
-                                        //     "projects-contracts.index"
-                                        // )}
-                                        // active={route().current(
-                                        //     "projects-contracts.index"
-                                        // )}
+                                        href={route(
+                                            "projects"
+                                        )}
+                                        active={route().current(
+                                            "projects"
+                                        )}
                                         >
-                                            Project
+                                            Projects
                                         </NavLink>
                                         <NavLink
                                         // href={route("customers.index")}
