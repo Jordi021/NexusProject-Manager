@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Models\User;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -33,7 +34,13 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        // $userID = Auth::getUser()->id;
+        // $user = User::findOrFail($userID);
+        // $role = $user->getRoleNames()->first();
+
+        // if ($role === "gerente") {
+        //     return redirect()->intended(route('projects-contracts.index'));
+        return redirect()->intended(route('welcome'));
     }
 
     /**

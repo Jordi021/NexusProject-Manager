@@ -7,6 +7,9 @@ use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Models\Contract;
 use App\Models\ArchivedContract;
+use App\Models\Customer;
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 use function Pest\Laravel\getConnection;
 
@@ -14,14 +17,20 @@ class ProjectContractController extends Controller
 {
     public function index()
     {
+        $userID = Auth::getUser()->id;
+        $user = User::findOrFail($userID);
+        $role = $user->getRoleNames()->first();
+        
         $projectsContracts = $this->getProjectsContracts();
         $contratos = $this->getApprovedContracts();
         $contratosArchivados = $this->getArchivedContracts();
-
+        $clientes = Customer::all();
         return Inertia::render('ProjectReview', [
             "projectsContracts" => $projectsContracts,
             "contratos" => $contratos,
             "contratosArchivados" => $contratosArchivados,
+            "clientes" => $clientes,
+            "role" => $role,
         ]);
     }
 
@@ -51,19 +60,19 @@ class ProjectContractController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'client_name' => 'required|string',
+            'customer_id' => 'required|exists:customers,id',
             'problem' => 'required|string',
             'requirements' => 'required|string',
             'status' => 'required|in:approved,rejected,pending',
         ]);
-
+    
         $projectContract = new ProjectContract();
-        $projectContract->client_name = $request->client_name;
+        $projectContract->customer_id = $request->customer_id;
         $projectContract->problem = $request->problem;
         $projectContract->requirements = $request->requirements;
         $projectContract->status = $request->status;
         $projectContract->save();
-
+    
         return to_route('projects-contracts.index');
     }
 

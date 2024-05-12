@@ -9,13 +9,18 @@ class ProjectContract extends Model
 {
     use HasFactory;
 
-    
+
     protected $table = 'projects_contracts';
 
     protected $fillable = [
-        'client_name',
+        'customer_id',
         'problem',
         'requirements',
         'status',
     ];
+
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
+    }
 }

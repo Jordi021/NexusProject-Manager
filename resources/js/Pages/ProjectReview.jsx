@@ -5,116 +5,81 @@ import { useState } from "react";
 import FormLayout from "@/Layouts/FormLayout";
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
-import PrimaryButton from "@/Components/PrimaryButton";
-import TextInput from "@/Components/TextInput";
 import TextArea from "@/Components/TextArea";
 import CustomButton from "@/Components/CustomButton";
+import Listar from "@/Components/Listar";
+import SelectInput from "@/Components/SelectInput";
 
 export default function ProjectReview({
     auth,
     projectsContracts,
     contratos,
     contratosArchivados,
+    clientes,
+    role
 }) {
-    const [activeTab, setActiveTab] = useState(true);
+    const [activeTab, setActiveTab] = useState("agregarProyectos");
+    const renderTab = () => {
+        switch (activeTab) {
+            case "agregarProyectos":
+                return (
+                    <>
+                        <FormLayout>
+                            <ContractForm
+                                projectsContracts={projectsContracts}
+                                clientes={clientes}
+                            />
+                        </FormLayout>
+                    </>
+                );
+            case "listar":
+                return (
+                    <>
+                        <Listar
+                            contratos={contratos}
+                            contratosArchivados={contratosArchivados}
+                            clientes={clientes}
+                        />
+                    </>
+                );
+            default:
+                break;
+        }
+    };
 
-    const handleActiveTab = () => {
-        setActiveTab(!activeTab);
+    const handleActiveTab = (tab) => {
+        setActiveTab(tab);
     };
 
     return (
         <AuthenticatedLayout
             user={auth.user}
-            header={<NavReview handleActiveTab={handleActiveTab} />}
+            header={<NavReview handleActiveTab={handleActiveTab}
+            role={role} />}
         >
             <Head title="Project Review" />
-            {activeTab ? (
-                <FormLayout>
-                    <ContractForm projectsContracts={projectsContracts} />
-                </FormLayout>
-            ) : (
-                <>
-                    <Listar
-                        contratos={contratos}
-                        contratosArchivados={contratosArchivados}
-                    />
-                </>
-            )}
+            {renderTab()}
         </AuthenticatedLayout>
-    );
-}
-
-function Listar({ contratos, contratosArchivados }) {
-    const [filtro, setFiltro] = useState("Todos");
-
-    const contratosFiltrados =
-        filtro === "Aprobados"
-            ? contratos.filter((contrato) => contrato.status === "approved")
-            : filtro === "Archivados"
-            ? contratosArchivados
-            : [...contratos, ...contratosArchivados];
-
-    return (
-        <div className="max-w-lg mx-auto">
-            <label
-                htmlFor="filtro"
-                className="block mb-2 text-lg font-medium text-gray-700"
-            >
-                Filtrar por:
-            </label>
-            <select
-                id="filtro"
-                value={filtro}
-                onChange={(e) => setFiltro(e.target.value)}
-                className="w-full px-4 py-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500"
-            >
-                <option value="Todos">Todos</option>
-                <option value="Aprobados">Aprobados</option>
-                <option value="Archivados">Archivados</option>
-            </select>
-
-            {contratosFiltrados.length > 0 ? (
-                <ul>
-                    {contratosFiltrados.map((contrato) => (
-                        <li
-                            key={contrato.id}
-                            className="mb-4 p-4 bg-white shadow-md rounded-md"
-                        >
-                            <div className="text-lg font-medium text-gray-800 mb-2">
-                                Client Name: {contrato.client_name}
-                            </div>
-                            <div className="text-gray-600 mb-2">
-                                Problem: {contrato.problem}
-                            </div>
-                            <div className="text-gray-600 mb-2">
-                                Requirements: {contrato.requirements}
-                            </div>
-                            <div className="text-gray-600">
-                                Status: {contrato.status}
-                            </div>
-                        </li>
-                    ))}
-                </ul>
-            ) : (
-                <p className="text-lg text-gray-800">
-                    No hay proyectos revisados todavía...
-                </p>
-            )}
-        </div>
     );
 }
 
 function NavReview({ handleActiveTab }) {
     return (
         <div className="space-x-5">
-            <button onClick={handleActiveTab}>Agregar</button>
-            <button onClick={handleActiveTab}>Listar</button>
+            <button onClick={() => handleActiveTab("agregarProyectos")}>
+                Agregar
+            </button>
+            <button onClick={() => handleActiveTab("listar")}>Listar</button>
         </div>
     );
 }
 
-function ProjectPending({ contract }) {
+function ProjectPending({ contract, clientes }) {
     const { post } = useForm();
+
+    const cliente = clientes.find(
+        (cliente) => cliente.id === contract.customer_id
+    );
 
     const handleApprove = (id) => {
         post(route("approve", { id }));
@@ -127,7 +92,7 @@ function ProjectPending({ contract }) {
     return (
         <div className="border-2 border-gray-400 rounded-md p-4 mt-5">
             <p className="text-lg font-medium mb-2">
-                Client Name: {contract.client_name}
+                Client Name: {cliente.name}
             </p>
             <p className="text-gray-600 mb-2">Problem: {contract.problem}</p>
             <p className="text-gray-600 mb-2">
@@ -152,9 +117,9 @@ function ProjectPending({ contract }) {
     );
 }
 
-function ContractForm({ projectsContracts }) {
+function ContractForm({ projectsContracts, clientes }) {
     const { data, setData, post, errors } = useForm({
-        client_name: "",
+        customer_id: "",
         problem: "",
         requirements: "",
         status: "pending",
@@ -179,26 +144,23 @@ function ContractForm({ projectsContracts }) {
             <div>
                 <form onSubmit={handleSubmit}>
                     <div>
-                        <InputLabel
-                            htmlFor="client_name"
-                            value="Client Name:"
-                        />
+                        <InputLabel htmlFor="client_id" value="Client Name:" />
 
-                        <TextInput
-                            id="client_name"
-                            type="text"
-                            name="client_name"
-                            value={data.client_name}
-                            className="mt-1 block w-full"
-                            isFocused={true}
+                        <SelectInput
+                            id="customer_id"
+                            value={data.customer_id}
                             onChange={(e) =>
-                                setData("client_name", e.target.value)
+                                setData("customer_id", e.target.value)
                             }
-                        />
-                        {/* <InputError
-                            message={errors.client_name}
-                            className="mt-2"
-                        /> */}
+                            className="mt-1 block w-full"
+                        >
+                            <option value="">Select a customer...</option>
+                            {clientes.map((cliente) => (
+                                <option key={cliente.id} value={cliente.id}>
+                                    {cliente.name}
+                                </option>
+                            ))}
+                        </SelectInput>
                     </div>
                     <div>
                         <InputLabel htmlFor="problem" value="Problem:" />
@@ -226,25 +188,10 @@ function ContractForm({ projectsContracts }) {
                             }
                         />
                     </div>
-                    {/* <div>
-                    <label htmlFor="status">Status:</label>
-                    <select
-                        id="status"
-                        value={data.status}
-                        onChange={(e) => setData("status", e.target.value)}
-                    >
-                        <option value="pending">Pending</option>
-                        <option value="approved">Approved</option>
-                        <option value="rejected">Rejected</option>
-                    </select>
-                </div> */}
                     <div className="flex justify-end mt-3">
-                        <PrimaryButton
-                            type="submit"
-                            className="bg-blue-500 justify-end"
-                        >
+                        <CustomButton type="submit" color="blue">
                             Agregar
-                        </PrimaryButton>
+                        </CustomButton>
                     </div>
                 </form>
             </div>
@@ -253,7 +200,11 @@ function ContractForm({ projectsContracts }) {
                 <p>No hay proyectos pendientes que revisar.</p>
             ) : (
                 projectsContracts.map((contract) => (
-                    <ProjectPending key={contract.id} contract={contract} />
+                    <ProjectPending
+                        key={contract.id}
+                        contract={contract}
+                        clientes={clientes}
+                    />
                 ))
             )}
         </>

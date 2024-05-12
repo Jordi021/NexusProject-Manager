@@ -4,21 +4,22 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ProjectContractController;
+use App\Http\Controllers\CustomerController;
+use Spatie\Permission\Middleware\RoleMiddleware;
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 Route::get('/', function () {
+    $userID = Auth::getUser()->id;
+    $user = User::findOrFail($userID);
+    $role = $user->getRoleNames()->first();
     return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
+        "role" => $role, 'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
     ]);
-});
+})->middleware(['auth', 'verified'])->name('welcome');
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -26,9 +27,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::resource("/comment", CommentController::class)->only(["index", "store"])->middleware(['auth', 'verified']);
-
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', RoleMiddleware::class . ':gerente'])->group(function () {
     Route::get('/projects-contracts', [ProjectContractController::class, 'index'])->name('projects-contracts.index');
     Route::post('/projects-contracts', [ProjectContractController::class, 'store'])->name('projects-contracts.store');
     // Route::delete('/projects-contracts/{id}', [ProjectContractController::class, 'destroy'])->name('projects-contracts.destroy');
@@ -36,5 +35,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/archive/{id}', [ProjectContractController::class, 'handleArchive'])->name('archive');
 });
 
+Route::middleware(['auth', RoleMiddleware::class . ':gerente'])->group(function () {
+    Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
+    Route::post('/customers', [CustomerController::class, 'store'])->name('customers.store');
+    Route::patch("/customers/{id}", [CustomerController::class, "update"])->name("customers.update");
+    Route::delete('/customers/{id}', [CustomerController::class, 'destroy'])->name('customers.destroy');
+});
 
-require __DIR__.'/auth.php';
+
+
+
+require __DIR__ . '/auth.php';

@@ -11,9 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::create('customers', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->timestamps();
+        });
         Schema::create('projects_contracts', function (Blueprint $table) {
             $table->id();
-            $table->string('client_name');
+            $table->foreignId('customer_id')->constrained('customers')->onDelete('cascade');
             $table->text('problem');
             $table->text('requirements');
             $table->enum('status', ['approved', 'rejected', 'pending'])->default('pending');
@@ -27,5 +33,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('projects_contracts');
+        Schema::dropIfExists('customers');
     }
 };
