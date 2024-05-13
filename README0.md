@@ -1,5 +1,3 @@
-     
-
 # Pasos para que sirva el programa:
     php artisan serve
     npm run dev
@@ -18,4 +16,5 @@
     2.git add .
     3.git commit -m "" 
     4.git push origin main
-    kevin
+    kevin - cambio
+    
