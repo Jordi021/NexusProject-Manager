@@ -1,4 +1,8 @@
+     
+
 # Pasos para que sirva el programa:
+    php artisan serve
+    npm run dev
     1.composer install
     2.npm install
     3.php artisan migrate:refresh
