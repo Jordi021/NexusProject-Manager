@@ -15,6 +15,5 @@
     1.git config --global core.autocrlf true (opcional en caso de warnigs)
     2.git add .
     3.git commit -m "" 
-    4.git push origin main
+    4.git push origin main (para solo subir los cambios de la rama main!!)
     kevin - cambio
-    
