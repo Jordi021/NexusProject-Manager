@@ -30,7 +30,7 @@ function AddForm() {
     return (
         <FormLayout>
             <CustomerForm />
-            <h3 className="text-2xl">Botón editar no sirve, ayuda!🥲</h3>
+            <h3 className="text-2xl">No cuelo bro</h3>
         </FormLayout>
     );
 }
