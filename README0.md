@@ -16,4 +16,4 @@
     2.git add .
     3.git commit -m "" 
     4.git push origin main (para solo subir los cambios de la rama main!!)
-    5.git fetch (para revisar cambios en el repositorio remoto) 
+    5.git fetch (para revisar cambios y ramas en el repositorio remoto) 
