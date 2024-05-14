@@ -19,3 +19,4 @@
     5.git fetch (para revisar, traer cambios y ramas en el repositorio remoto) 
     6.git merge [remoto]/[rama] (para unir los cambios traidos por fetch)
     7.git pull [remoto] [rama] (hace 5 y 6)
+    8.git status -s
