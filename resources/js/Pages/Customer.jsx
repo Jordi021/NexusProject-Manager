@@ -16,6 +16,7 @@ export default function Customer({ auth, customers }) {
         <AuthenticatedLayout
             user={auth.user}
             header={<h2 className="text-xl">Agregar Clientes🤑👻</h2>}
+            role={auth.user.roles[0].name}
         >
             <Head title="Customers" />
             <BreakLayout

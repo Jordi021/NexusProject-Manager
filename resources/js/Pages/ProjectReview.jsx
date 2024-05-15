@@ -55,7 +55,7 @@ export default function ProjectReview({
         <AuthenticatedLayout
             user={auth.user}
             header={<NavReview handleActiveTab={handleActiveTab}
-            role={role} />}
+            role={auth.user.roles[0].name} />}
         >
             <Head title="Project Review" />
             {renderTab()}
