@@ -5,10 +5,10 @@ import NavLink from "@/Components/NavLink";
 import ResponsiveNavLink from "@/Components/ResponsiveNavLink";
 import { Link } from "@inertiajs/react";
 
-export default function Authenticated({ user, header, children, role }) {
+export default function Authenticated({ user, header, children, role}) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
-
+        
     return (
         <div className="min-h-screen bg-gray-100">
             <nav className="bg-white border-b border-gray-100">
@@ -48,10 +48,10 @@ export default function Authenticated({ user, header, children, role }) {
                                     <>
                                         <NavLink
                                         href={route(
-                                            "projects"
+                                            "projects.index"
                                         )}
                                         active={route().current(
-                                            "projects"
+                                            "projects.index"
                                         )}
                                         >
                                             Projects

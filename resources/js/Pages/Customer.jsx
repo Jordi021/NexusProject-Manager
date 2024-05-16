@@ -1,7 +1,7 @@
 import { useForm } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head } from "@inertiajs/react";
-import { useState, useEffect } from "react";
+import React, { useState, useContext } from "react";
 import FormLayout from "@/Layouts/FormLayout";
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
@@ -11,7 +11,43 @@ import BreakLayout from "@/Layouts/BreakLayout";
 import { MdOutlineDeleteOutline } from "react-icons/md";
 import { MdOutlineEdit } from "react-icons/md";
 
+const customerContext = React.createContext();
+
 export default function Customer({ auth, customers }) {
+    const [editCustomer, setEditCustomer] = useState(false);
+    const [id, setId] = useState(0);
+    const [info, setInfo] = useState({
+        name: "",
+        email: "",
+    });
+
+    const updateInfo = (newValue) => {
+        setInfo((prevInfo) => {
+            return { ...prevInfo, ...newValue };
+        });
+    };
+
+    const handleEdit = (value) => {
+        setEditCustomer(value);
+    };
+
+    const handleId = (id) => {
+        setId(id);
+    };
+
+    const contextValues = {
+        customer: {
+            id,
+            handleId,
+            info,
+            updateInfo,
+        },
+        toggleCustomer: {
+            editCustomer,
+            handleEdit,
+        },
+    };
+
     return (
         <AuthenticatedLayout
             user={auth.user}
@@ -19,10 +55,12 @@ export default function Customer({ auth, customers }) {
             role={auth.user.roles[0].name}
         >
             <Head title="Customers" />
-            <BreakLayout
-                left={<AddForm />}
-                right={<List customers={customers} />}
-            />
+            <customerContext.Provider value={contextValues}>
+                <BreakLayout
+                    left={<AddForm />}
+                    right={<List customers={customers} />}
+                />
+            </customerContext.Provider>
         </AuthenticatedLayout>
     );
 }
@@ -31,16 +69,20 @@ function AddForm() {
     return (
         <FormLayout>
             <CustomerForm />
-            <h3 className="text-2xl">No cuelo bro</h3>
         </FormLayout>
     );
 }
 
 function List({ customers }) {
-    const { patch, delete: destroy } = useForm();
+    const { delete: destroy } = useForm();
+    const {
+        customer: { handleId, updateInfo },
+        toggleCustomer: { handleEdit: edit },
+    } = useContext(customerContext);
 
     const handleEdit = (id) => {
-        patch(route("customers.patch", {id: id}))
+        handleId(id);
+        edit(true);
     };
 
     const handleDelete = (id) => {
@@ -61,18 +103,21 @@ function List({ customers }) {
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 {customer.email}
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-xl">
+                            <td className="px-6 py-4 whitespace-nowrap text-xl space-x-2">
                                 <button
                                     className="relative inline-flex items-center justify-center w-10 h-10 rounded-lg bg-blue-400 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                                    onClick={() => handleEdit(customer.id)}
-                                    disabled
+                                    onClick={() => {
+                                        updateInfo({
+                                            name: customer.name,
+                                            email: customer.email,
+                                        });
+                                        handleEdit(customer.id);
+                                    }}
                                 >
                                     <span className="text-white">
                                         <MdOutlineEdit />
                                     </span>
                                 </button>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-xl">
                                 <button
                                     className="relative inline-flex items-center justify-center w-10 h-10 rounded-lg bg-red-400 hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                                     onClick={() => handleDelete(customer.id)}
@@ -111,13 +156,7 @@ function Table({ children }) {
                         scope="col"
                         className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                     >
-                        Editar
-                    </th>
-                    <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                        Borrar
+                        Acciones
                     </th>
                 </tr>
             </thead>
@@ -128,32 +167,60 @@ function Table({ children }) {
     );
 }
 
-function CustomerForm({ customer }) {
+function CustomerForm() {
     const { data, setData, post, patch, errors } = useForm({
         name: "",
         email: "",
     });
 
+    const {
+        customer: { id, info },
+        toggleCustomer: { editCustomer, handleEdit },
+    } = useContext(customerContext);
+
+    const [isEditMode, setIsEditMode] = useState(editCustomer);
+
+    const handleSubmitUpdate = (e) => {
+        e.preventDefault();
+        patch(route("customers.update", { id: id }), data);
+        resetInputs();
+        setIsEditMode(false);
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
-
-        post(route("customers.store"));
+        post(route("customers.store"), data);
         resetInputs();
     };
 
     const resetInputs = () => {
-        setData((prevState) => ({
-            ...prevState,
+        setData({
             name: "",
             email: "",
-        }));
+        });
     };
+
+    React.useEffect(() => {
+        if (editCustomer) {
+            setData({
+                name: info.name,
+                email: info.email,
+            });
+            setIsEditMode(true);
+        }
+    }, [editCustomer, info.name, info.email, setData]);
+
+    React.useEffect(() => {
+        if (isEditMode) {
+            handleEdit(false);
+        }
+    }, [isEditMode, handleEdit]);
+
     return (
         <div>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={isEditMode ? handleSubmitUpdate : handleSubmit}>
                 <div>
                     <InputLabel htmlFor="name" value="Client Name:" />
-
                     <TextInput
                         id="name"
                         type="text"
@@ -181,7 +248,7 @@ function CustomerForm({ customer }) {
                 </div>
                 <div className="flex justify-end mt-3">
                     <CustomButton type="submit" color="blue">
-                        Agregar
+                        {isEditMode ? "Editar" : "Agregar"}
                     </CustomButton>
                 </div>
             </form>

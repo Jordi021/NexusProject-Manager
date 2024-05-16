@@ -33,13 +33,7 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
 
         $request->session()->regenerate();
-
-        // $userID = Auth::getUser()->id;
-        // $user = User::findOrFail($userID);
-        // $role = $user->getRoleNames()->first();
-
-        // if ($role === "gerente") {
-        //     return redirect()->intended(route('projects-contracts.index'));
+        
         return redirect()->intended(route('welcome'));
     }
 

@@ -9,6 +9,8 @@ import TextArea from "@/Components/TextArea";
 import CustomButton from "@/Components/CustomButton";
 import Listar from "@/Components/Listar";
 import SelectInput from "@/Components/SelectInput";
+import { FaEllipsisH } from "react-icons/fa";
+import Dropdown from "@/Components/Dropdown";
 
 export default function ProjectReview({
     auth,
@@ -16,7 +18,7 @@ export default function ProjectReview({
     contratos,
     contratosArchivados,
     clientes,
-    role
+    role,
 }) {
     const [activeTab, setActiveTab] = useState("agregarProyectos");
     const renderTab = () => {
@@ -54,8 +56,8 @@ export default function ProjectReview({
     return (
         <AuthenticatedLayout
             user={auth.user}
-            header={<NavReview handleActiveTab={handleActiveTab}
-            role={auth.user.roles[0].name} />}
+            role={auth.user.roles[0].name}
+            header={<NavReview handleActiveTab={handleActiveTab} />}
         >
             <Head title="Project Review" />
             {renderTab()}
@@ -75,25 +77,28 @@ function NavReview({ handleActiveTab }) {
 }
 
 function ProjectPending({ contract, clientes }) {
-    const { post } = useForm();
-
+    const { post, delete: destroy } = useForm();
     const cliente = clientes.find(
         (cliente) => cliente.id === contract.customer_id
     );
-
+    const handleDelete = (id) => {
+        destroy(route("projects-contracts.destroy", { id: id }));
+    };
     const handleApprove = (id) => {
         post(route("approve", { id }));
     };
-
     const handleArchive = (id) => {
         post(route("archive", { id }));
     };
 
     return (
         <div className="border-2 border-gray-400 rounded-md p-4 mt-5">
-            <p className="text-lg font-medium mb-2">
-                Client Name: {cliente.name}
-            </p>
+            <div className="flex justify-between">
+                <p className="text-lg font-medium mb-2">
+                    Client Name: {cliente.name}
+                </p>
+                <Options id={contract.id} handleDelete={handleDelete} />
+            </div>
             <p className="text-gray-600 mb-2">Problem: {contract.problem}</p>
             <p className="text-gray-600 mb-2">
                 Requirements: {contract.requirements}
@@ -114,6 +119,35 @@ function ProjectPending({ contract, clientes }) {
                 </CustomButton>
             </div>
         </div>
+    );
+}
+
+function Options({ id, handleDelete }) {
+    return (
+        <>
+            <Dropdown>
+                <Dropdown.Trigger>
+                    <span className="inline-flex rounded-md">
+                        <button
+                            type="button"
+                            className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150"
+                        >
+                            <FaEllipsisH />
+                        </button>
+                    </span>
+                </Dropdown.Trigger>
+                <Dropdown.Content width="32">
+                    <div className="py-2 hover:bg-gray-200 px-5">
+                        <button onClick={() => handleDelete(id)}>
+                            Eliminar
+                        </button>
+                    </div>
+                    {/* <div className="py-2 hover:bg-gray-200 px-5">
+              <button>Editar</button>
+            </div> */}
+                </Dropdown.Content>
+            </Dropdown>
+        </>
     );
 }
 

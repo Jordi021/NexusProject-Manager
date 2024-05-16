@@ -17,25 +17,25 @@ class ProjectContractController extends Controller
 {
     public function index()
     {
-        $userID = Auth::getUser()->id;
-        $user = User::findOrFail($userID);
-        $role = $user->getRoleNames()->first();
-        
         $projectsContracts = $this->getProjectsContracts();
         $contratos = $this->getApprovedContracts();
         $contratosArchivados = $this->getArchivedContracts();
         $clientes = Customer::all();
+
         return Inertia::render('ProjectReview', [
             "projectsContracts" => $projectsContracts,
             "contratos" => $contratos,
             "contratosArchivados" => $contratosArchivados,
             "clientes" => $clientes,
-            "role" => $role,
         ]);
     }
 
-    private function getProjectsContracts() {
-        return ProjectContract::where('status', 'pending')->get();
+    private function getProjectsContracts()
+    {
+        return ProjectContract::where('status', 'pending')
+            ->orderBy('created_at', 'desc')
+            ->get();
+        // return ProjectContract::where('status', 'pending')->get();
     }
 
 
@@ -48,11 +48,11 @@ class ProjectContractController extends Controller
         return $projectContracts;
     }
 
-    private function getArchivedContracts(): array 
+    private function getArchivedContracts(): array
     {
-        $archivedContractIds = ArchivedContract::pluck('project_contract_id')->toArray(); 
+        $archivedContractIds = ArchivedContract::pluck('project_contract_id')->toArray();
 
-        $archivedContracts = ProjectContract::whereIn('id', $archivedContractIds)->get()->toArray(); 
+        $archivedContracts = ProjectContract::whereIn('id', $archivedContractIds)->get()->toArray();
 
         return $archivedContracts;
     }
@@ -65,25 +65,22 @@ class ProjectContractController extends Controller
             'requirements' => 'required|string',
             'status' => 'required|in:approved,rejected,pending',
         ]);
-    
+
         $projectContract = new ProjectContract();
         $projectContract->customer_id = $request->customer_id;
         $projectContract->problem = $request->problem;
         $projectContract->requirements = $request->requirements;
         $projectContract->status = $request->status;
         $projectContract->save();
-    
+
         return to_route('projects-contracts.index');
     }
 
-    // public function destroy($id)
-    // {
-    //     $projectContract = ProjectContract::findOrFail($id);
-
-    //     $projectContract->delete();
-
-    //     return redirect()->route('projects-contracts.index');
-    // }
+    public function destroy($id)
+    {
+        ProjectContract::findOrFail($id)->delete();
+        return to_route('projects-contracts.index');
+    }
 
 
     public function handleApprove($id)
