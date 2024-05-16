@@ -8,7 +8,7 @@
     5.php artisan serve
     6.npm run dev
 # Iniciar sesion con cualquiera de estos roles:
-    $roles = ['gerente', 'analista', 'jefe', 'desarrollador'];
+    $roles = ['gerente', 'analista', 'jefe'];
     email = nombreRol@gmail.com
     contraseña = password
 # Inspirate

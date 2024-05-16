@@ -33,10 +33,6 @@ class UsersAndRolesSeeder extends Seeder
                 'name' => 'Jefe',
                 'role' => 'jefe',
             ],
-            [
-                'name' => 'Desarrollador',
-                'role' => 'desarrollador',
-            ]
         ];
 
         foreach ($usersData as $userData) {
