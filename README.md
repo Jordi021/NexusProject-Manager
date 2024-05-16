@@ -1,4 +1,4 @@
-<p align="center"><a href="#" target="_blank"><img src="./public/Nexus.svg" width="400" alt="Nexus Logo"></a></p>
+<p align="center"><a href="#" target="_blank"><img src="./public/Nexus.svg" width="200" height="200" alt="Nexus Logo"></a></p>
 
 # Pasos para que sirva el programa:
     1.composer install
