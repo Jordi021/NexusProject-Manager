@@ -27,7 +27,7 @@ return new class extends Migration
             $table->date('start_date');
             $table->date('end_date');
             $table->integer('progress')->default(0);
-            $table->enum('status', ['iniciado', 'en_desarrollo', 'cancelado', 'finalizado'])->default('iniciado');
+            $table->enum('status', ['Iniciado', 'En Desarrollo', 'Cancelado', 'Finalizado'])->default('iniciado');
             $table->foreignId('contract_id')->constrained('contracts')->onDelete('cascade');
             $table->foreignId('task_id')->nullable()->constrained('tasks')->onDelete('cascade');
             $table->timestamps();

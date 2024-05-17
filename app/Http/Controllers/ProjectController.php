@@ -5,14 +5,19 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Project;
 use Inertia\Inertia;
+use App\Models\Contract;
+use App\Models\ProjectContract;
+use App\Models\Customer;
 
 class ProjectController extends Controller
 {
     public function index()
     {
         $projects = Project::all();
+        $projectsApproved = $this->getApprovedContractProyects();
         return Inertia::render('Project', [
-            "projects" => $projects
+            "projects" => $projects,
+            "projectsApproved" => $projectsApproved,
         ]);
     }
 
@@ -23,9 +28,8 @@ class ProjectController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'progress' => 'required|integer',
-            'status' => 'required|in:iniciado,en_desarrollo,cancelado,finalizado',
+            'status' => 'required|in:Iniciado,En Desarrollo,Cancelado,Finalizado',
             'contract_id' => 'required|exists:contracts,id',
-            'task_id' => 'nullable|exists:tasks,id',
         ]);
 
         Project::create($request->all());
@@ -33,26 +37,50 @@ class ProjectController extends Controller
         return to_route('projects.index');
     }
 
-    public function update(Request $request, Project $project)
+    public function update(Request $request, $id)
     {
-        $request->validate([
+        $validatedData = $request->validate([
             'name' => 'required|string',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
-            'progress' => 'required|integer',
-            'status' => 'required|in:iniciado,en_desarrollo,cancelado,finalizado',
+            'progress' => 'required|integer|between:0,100',
+            'status' => 'required|in:Iniciado,En Desarrollo,Cancelado,Finalizado',
             'contract_id' => 'required|exists:contracts,id',
-            'task_id' => 'nullable|exists:tasks,id',
         ]);
 
-        $project->update($request->all());
+        $project = Project::findOrFail($id);
+        $project->update($validatedData);
 
         return redirect()->route('projects.index');
     }
 
-    public function destroy(Project $project)
+    public function destroy($id)
     {
-        $project->delete();
+        Project::findOrFail($id)->delete();
         return redirect()->route('projects.index');
+    }
+
+    private function getApprovedContractProyects()
+    {
+        $approvedContractsIds = Contract::pluck('project_contract_id')->toArray();
+        $contractId = Contract::pluck("id")->toArray();
+
+        $projectContracts = ProjectContract::whereIn('id', $approvedContractsIds)->select("id", 'problem', 'customer_id')->get();
+
+        $results = [];
+        for ($i = 0; $i < count($projectContracts); $i++) {
+            $contract = $projectContracts[$i];
+            $customer = Customer::find($contract->customer_id);
+            $id = $contractId[$i];
+            if ($customer) {
+                $results[] = [
+                    "id" => $id,
+                    'customer_name' => $customer->name,
+                    'problem' => $contract->problem,
+                ];
+            }
+        }
+
+        return $results;
     }
 }

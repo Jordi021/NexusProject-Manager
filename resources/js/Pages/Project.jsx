@@ -2,8 +2,8 @@ import CustomButton from "@/Components/CustomButton";
 import Modal from "@/Components/Modal";
 import Authenticated from "@/Layouts/AuthenticatedLayout";
 import Canvas from "@/Layouts/CanvasLayout";
-import { Head } from "@inertiajs/react";
-import { useState } from "react";
+import { Head, useForm } from "@inertiajs/react";
+import React, { useContext, useState } from "react";
 import { IoAddCircleOutline } from "react-icons/io5";
 import { EditButton, DeleteButton } from "@/Components/IconButtons";
 import ProgressBar from "@/Components/ProgressBar";
@@ -14,8 +14,40 @@ import InputLabel from "@/Components/InputLabel";
 import SelectInput from "@/Components/SelectInput";
 import TextInput from "@/Components/TextInput";
 
-export default function Project({ auth, projects }) {
+const ProjectContext = React.createContext();
+export default function Project({ auth, projects, projectsApproved }) {
     const [showModal, setShowModal] = useState(false);
+
+    const [editMode, setEditMode] = useState(false);
+    const [projectData, setProjectData] = useState({
+        id: "",
+        name: "",
+        start_date: "",
+        end_date: "",
+        progress: 0,
+        status: "",
+        contract_id: "",
+    });
+
+    const handleModalClose = () => {
+        setEditMode(false);
+        setProjectData({
+            id: "",
+            name: "",
+            start_date: getCurrentDate(),
+            end_date: getCurrentDate(),
+            progress: 0,
+            status: "",
+            contract_id: "",
+        });
+    };
+
+    const contextValue = {
+        editMode,
+        setEditMode,
+        projectData,
+        setProjectData,
+    };
 
     return (
         <Authenticated
@@ -33,86 +65,176 @@ export default function Project({ auth, projects }) {
             }
         >
             <Head title="Projects" />
-            <Modal show={showModal} onClose={() => setShowModal(false)}>
-                <div className="p-4">
-                    <ProjectForm />
-                </div>
-            </Modal>
-            <Canvas>
-                {/* {proyectos ? (
-                    <Table proyectos={proyectos} />
-                ) : (
-                    <h1>No hay proyectos todavía...</h1>
-                )} */}
-                <Table projects={projects} />
-            </Canvas>
+            <ProjectContext.Provider value={contextValue}>
+                <Modal
+                    show={showModal}
+                    onClose={() => {
+                        setShowModal(false);
+                        handleModalClose();
+                    }}
+                >
+                    <div className="p-4">
+                        <ProjectForm projectsApproved={projectsApproved} />
+                    </div>
+                </Modal>
+                <Canvas>
+                    <Table
+                        projects={projects}
+                        setShowModal={setShowModal}
+                        projectsApproved={projectsApproved}
+                    />
+                </Canvas>
+            </ProjectContext.Provider>
         </Authenticated>
     );
 }
 
-function ProjectForm() {
+function ProjectForm({ projectsApproved }) {
+    const { editMode, projectData, setEditMode, setProjectData } =
+        useContext(ProjectContext);
+    const { data, setData, post, patch, errors } = useForm({
+        name: editMode ? projectData.name : "",
+        start_date: editMode ? projectData.start_date : getCurrentDate(),
+        end_date: editMode ? projectData.end_date : getCurrentDate(),
+        progress: editMode ? projectData.progress : 0,
+        status: editMode ? projectData.status : "",
+        contract_id: editMode ? projectData.contract_id : "",
+    });
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        editMode
+            ? patch(route("projects.update", projectData.id), data)
+            : post(route("projects.store"), data);
+        reset();
+    };
+
+    const reset = () => {
+        setProjectData({
+            id: "",
+            name: "",
+            start_date: getCurrentDate(),
+            end_date: getCurrentDate(),
+            progress: 0,
+            status: "",
+            contract_id: "",
+        });
+    };
+
     return (
         <>
             <h2 className="text-xl font-bold mb-4">Agregar Proyecto</h2>
-            <form action="">
+            <form onSubmit={handleSubmit}>
                 <div>
                     <InputLabel
-                        htmlFor="customer_id"
-                        value="Nombre del Cliente"
+                        htmlFor="contract_id"
+                        value="Nombre del Cliente y Problema"
                     />
-
                     <SelectInput
-                        id="customer_id"
-                        // value={data.customer_id}
-                        onChange={(e) => setData("customer_id", e.target.value)}
+                        id="contract_id"
+                        name="contract_id"
+                        value={data.contract_id}
+                        onChange={(e) => setData("contract_id", e.target.value)}
                         className="mt-1 block w-full"
                     >
-                        <option value="">Selecciona un cliente...</option>
+                        <option value="">
+                            Selecciona un cliente y problema...
+                        </option>
+                        {projectsApproved && projectsApproved.length > 0 ? (
+                            projectsApproved.map((projectApproved) => (
+                                <option
+                                    key={projectApproved.id}
+                                    value={projectApproved.id}
+                                >
+                                    {`${projectApproved.customer_name}, ${projectApproved.problem}`}
+                                </option>
+                            ))
+                        ) : (
+                            <option value="">
+                                No hay contratos aprobados...
+                            </option>
+                        )}
                     </SelectInput>
+                    <InputError message={errors.contract_id} className="mt-2" />
                 </div>
                 <div>
                     <InputLabel htmlFor="name" value="Nombre del Proyecto" />
                     <TextInput
                         id="name"
-                        // value={data.problem}
+                        name="name"
+                        value={data.name}
                         className="mt-1 block w-full"
-                        onChange={(e) => setData("problem", e.target.value)}
+                        onChange={(e) => setData("name", e.target.value)}
                     />
                 </div>
+                <InputError message={errors.name} className="mt-2" />
                 <div className="flex gap-5">
                     <div>
-                        <InputLabel htmlFor="fechaIn" value="Fecha Inicio" />
-                        <input type="date" name="fechaIn" />
+                        <InputLabel htmlFor="start_date" value="Fecha Inicio" />
+                        <input
+                            type="date"
+                            id="start_date"
+                            name="start_date"
+                            value={data.start_date}
+                            onChange={(e) =>
+                                setData("start_date", e.target.value)
+                            }
+                        />
+                        <InputError
+                            message={errors.start_date}
+                            className="mt-2"
+                        />
                     </div>
                     <div>
-                        <InputLabel htmlFor="fechaFn" value="Fecha Final" />
-                        <input type="date" name="fechaFn" />
+                        <InputLabel htmlFor="end_date" value="Fecha Fin" />
+                        <input
+                            type="date"
+                            id="end_date"
+                            name="end_date"
+                            value={data.end_date}
+                            onChange={(e) =>
+                                setData("end_date", e.target.value)
+                            }
+                        />
+                        <InputError
+                            message={errors.end_date}
+                            className="mt-2"
+                        />
                     </div>
                 </div>
-
                 <div>
                     <InputLabel htmlFor="progress" value="Avance" />
-                    <input min="0" max="100" type="number" name="progress" />
+                    <input
+                        id="progress"
+                        name="progress"
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={data.progress}
+                        onChange={(e) => setData("progress", e.target.value)}
+                    />
+                    <InputError message={errors.progress} className="mt-2" />
                 </div>
                 <div>
                     <InputLabel htmlFor="status" value="Estado" />
-
                     <SelectInput
+                        id="status"
                         name="status"
-                        // value={data.customer_id}
-                        onChange={(e) => setData("customer_id", e.target.value)}
+                        value={data.status}
+                        onChange={(e) => setData("status", e.target.value)}
                         className="mt-1 block w-full"
                     >
                         <option value="">Selecciona un estado...</option>
-                        <option value="iniciado">Iniciado</option>
-                        <option value="en_desarrollo">En desarrollo</option>
-                        <option value="cancelado">Cancelado</option>
-                        <option value="finalizado">Finalizado</option>
+                        <option value="Iniciado">Iniciado</option>
+                        <option value="En Desarrollo">En desarrollo</option>
+                        <option value="Cancelado">Cancelado</option>
+                        <option value="Finalizado">Finalizado</option>
                     </SelectInput>
+                    <InputError message={errors.status} className="mt-2" />
                 </div>
                 <div className="flex justify-end mt-3">
                     <CustomButton type="submit" color="blue">
-                        Agregar
+                        {editMode ? "Editar" : "Agregar"}
                     </CustomButton>
                 </div>
             </form>
@@ -120,23 +242,52 @@ function ProjectForm() {
     );
 }
 
-function TableRow({ proyecto }) {
+function getCurrentDate() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+}
+
+function TableRow({ proyecto, customerName, setShowModal }) {
+    const { setEditMode, setProjectData } = useContext(ProjectContext);
+    const { delete: destroy } = useForm();
+
+    const handleDelete = (id) => {
+        destroy(route("projects.destroy", { id: id }));
+    };
+
+    const handleEditClick = () => {
+        setEditMode(true);
+        setProjectData({
+            id: proyecto.id,
+            name: proyecto.name,
+            start_date: proyecto.start_date,
+            end_date: proyecto.end_date,
+            progress: proyecto.progress,
+            status: proyecto.status,
+            contract_id: proyecto.contract_id,
+        });
+        setShowModal(true);
+    };
+
     return (
         <tr>
-            <td className="px-6 py-4 whitespace-nowrap">{proyecto.cliente}</td>
-            <td className="px-6 py-4 whitespace-nowrap">{proyecto.nombre}</td>
+            <td className="px-6 py-4 whitespace-nowrap">{customerName}</td>
+            <td className="px-6 py-4 whitespace-nowrap">{proyecto.name}</td>
             <td className="px-6 py-4 whitespace-nowrap">
-                {proyecto.fechaInicio}
+                {proyecto.start_date}
             </td>
-            <td className="px-6 py-4 whitespace-nowrap">{proyecto.fechaFin}</td>
-            <td className="px-6 py-4 whitespace-nowrap">{proyecto.estado}</td>
+            <td className="px-6 py-4 whitespace-nowrap">{proyecto.end_date}</td>
+            <td className="px-6 py-4 whitespace-nowrap">{proyecto.status}</td>
             <td className="px-6 py-4 whitespace-nowrap">
-                <ProgressBar percent={proyecto.porcentajeAvance} />
+                <ProgressBar percent={proyecto.progress} />
             </td>
             <td className="px-6 py-4 whitespace-nowrap">
                 <div className="space-x-3">
-                    <EditButton />
-                    <DeleteButton />
+                    <EditButton onClick={handleEditClick} />
+                    <DeleteButton onClick={() => handleDelete(proyecto.id)} />
                 </div>
             </td>
         </tr>
@@ -154,10 +305,10 @@ function Title({ colName }) {
     );
 }
 
-function Table({ projects }) {
+function Table({ projects, projectsApproved, setShowModal }) {
     return (
         <>
-            {projects.length > 0 && projects ? (
+            {projects.length > 0 ? (
                 <table className="min-w-full divide-y divide-gray-200 rounded-lg overflow-hidden">
                     <thead className="bg-gray-100">
                         <tr>
@@ -171,9 +322,20 @@ function Table({ projects }) {
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                        {projects.map((project) => (
-                            <TableRow key={project.id} proyecto={project} />
-                        ))}
+                        {projects.map((project) => {
+                            const approvedProject = projectsApproved.find(
+                                (pa) => pa.id === project.contract_id
+                            );
+                            const { customer_name } = approvedProject;
+                            return (
+                                <TableRow
+                                    key={project.id}
+                                    proyecto={project}
+                                    customerName={customer_name}
+                                    setShowModal={setShowModal}
+                                />
+                            );
+                        })}
                     </tbody>
                 </table>
             ) : (
