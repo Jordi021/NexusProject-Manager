@@ -7,6 +7,7 @@ import { IoAddCircleOutline } from "react-icons/io5";
 import { EditButton, DeleteButton } from "@/Components/IconButtons";
 import Canvas from "@/Layouts/CanvasLayout";
 import TextArea from "@/Components/TextArea";
+import { CancelButton, OkButton } from "@/Components/IconButtons";
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
 import TextInput from "@/Components/TextInput";
@@ -75,7 +76,11 @@ export default function Task({ auth, tasks, projects, analysts }) {
                     }}
                 >
                     <div className="p-4">
-                        <TaskForm projects={projects} analysts={analysts} />
+                        <TaskForm
+                            projects={projects}
+                            analysts={analysts}
+                            setShowModal={setShowModal}
+                        />
                     </div>
                 </Modal>
                 <Canvas>
@@ -91,7 +96,7 @@ export default function Task({ auth, tasks, projects, analysts }) {
     );
 }
 
-function TaskForm({ projects, analysts }) {
+function TaskForm({ projects, analysts, setShowModal }) {
     const { editMode, taskData, setTaskData } = useContext(TaskContext);
     const { data, setData, post, patch, errors } = useForm({
         description: editMode ? taskData.description : "",
@@ -211,10 +216,13 @@ function TaskForm({ projects, analysts }) {
                     </SelectInput>
                     <InputError message={errors.status} className="mt-2" /> */}
                 </div>
-                <div className="flex justify-end mt-3">
-                    <CustomButton type="submit" color="blue">
-                        {editMode ? "Editar" : "Agregar"}
-                    </CustomButton>
+                <div className="flex justify-end mt-3 space-x-1">
+                    <CancelButton
+                        text="Cancel"
+                        onClick={() => setShowModal(false)}
+                        className="w-20"
+                    />
+                    <OkButton type="submit" text="Ok" className="w-20" />
                 </div>
             </form>
         </>
@@ -259,41 +267,67 @@ function TableRow({ task, analyst, project, setShowModal }) {
 }
 
 function Table({ tasks, projects, analysts, setShowModal }) {
+    const [selectedOption, setSelectedOption] = useState("Todos");
+
+    const handleOptionChange = (e) => {
+        setSelectedOption(e.target.value);
+    };
+
+    const filteredTasks = tasks.filter((task) => {
+        if (selectedOption === "Todos") return true;
+        if (selectedOption === "En progreso")
+            return task.status === "En progreso";
+        if (selectedOption === "Finalizado")
+            return task.status === "Finalizado";
+        return false;
+    });
+
     return (
         <>
             {tasks.length > 0 ? (
-                <table className="min-w-full divide-y divide-gray-200 rounded-lg overflow-hidden">
-                    <thead className="bg-gray-100">
-                        <tr>
-                            <TitleTable colName="Proyecto" />
-                            <TitleTable colName="Analista" />
-                            <TitleTable colName="Descripción" />
-                            <TitleTable colName="Contenido" />
-                            <TitleTable colName="Estado" />
-                            <TitleTable colName="Acciones" />
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {tasks.map((task) => {
-                            const analyst = analysts.find(
-                                (analyst) =>
-                                    analyst.analyst_id === task.analyst_id
-                            );
-                            const project = projects.find(
-                                (project) => project.id === task.project_id
-                            );
-                            return (
-                                <TableRow
-                                    key={task.id}
-                                    task={task}
-                                    analyst={analyst}
-                                    project={project}
-                                    setShowModal={setShowModal}
-                                />
-                            );
-                        })}
-                    </tbody>
-                </table>
+                <>
+                    <select 
+                        className="w-36 px-4 py-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500"
+                        value={selectedOption}
+                        onChange={handleOptionChange}
+                    >
+                        <option value="Todos">Todos</option>
+                        <option value="En progreso">En progreso</option>
+                        <option value="Finalizado">Finalizado</option>
+                    </select>
+                    <table className="min-w-full divide-y divide-gray-200 rounded-lg overflow-hidden">
+                        <thead className="bg-gray-100">
+                            <tr>
+                                <TitleTable colName="Proyecto" />
+                                <TitleTable colName="Analista" />
+                                <TitleTable colName="Descripción" />
+                                <TitleTable colName="Contenido" />
+                                <TitleTable colName="Estado" />
+                                <TitleTable colName="Acciones" />
+                            </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                            {filteredTasks.map((task) => {
+                                const analyst = analysts.find(
+                                    (analyst) =>
+                                        analyst.analyst_id === task.analyst_id
+                                );
+                                const project = projects.find(
+                                    (project) => project.id === task.project_id
+                                );
+                                return (
+                                    <TableRow
+                                        key={task.id}
+                                        task={task}
+                                        analyst={analyst}
+                                        project={project}
+                                        setShowModal={setShowModal}
+                                    />
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </>
             ) : (
                 <h2>There are no tasks, add one.📝</h2>
             )}

@@ -47,5 +47,48 @@ function DeleteButton({
     );
 }
 
-export { EditButton, DeleteButton };
+function OkButton({
+    text,
+    color = "green",
+    iconSize = "text-xl",
+    className = "",
+    ...props
+}) {
+    return (
+        <button
+            {...props}
+            className={
+                `${commonStyles} bg-green-500 hover:bg-green-600 focus:ring-green-600 ` +
+                className
+            }
+        >
+            <span className="text-white">
+                {text}
+            </span>
+        </button>
+    );
+}
 
+function CancelButton({
+    text,
+    color = "red",
+    iconSize = "text-xl",
+    className = "",
+    ...props
+}) {
+    return (
+        <button
+            {...props}
+            className={
+                `${commonStyles} bg-red-500 hover:bg-red-600 focus:ring-red-600 ` +
+                className
+            }
+        >
+            <span className="text-white">
+                {text}
+            </span>
+        </button>
+    );
+}
+
+export { EditButton, DeleteButton, OkButton, CancelButton};

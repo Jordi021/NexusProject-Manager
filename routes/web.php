@@ -37,6 +37,7 @@ Route::middleware(['auth', RoleMiddleware::class . ':gerente'])->group(function 
     Route::post('/approve/{id}', [ProjectContractController::class, 'handleApprove'])->name('approve');
     Route::post('/archive/{id}', [ProjectContractController::class, 'handleArchive'])->name('archive');
 
+
     Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
     Route::post('/customers', [CustomerController::class, 'store'])->name('customers.store');
     Route::patch("/customers/{id}", [CustomerController::class, "update"])->name("customers.update");
@@ -50,6 +51,8 @@ Route::middleware(["auth", RoleMiddleware::class . ":jefe"])->group(
         Route::post("/projects", [ProjectController::class, "store"])->name("projects.store");
         Route::patch("/projects/{id}", [ProjectController::class, "update"])->name("projects.update");
         Route::delete("/projects/{id}", [ProjectController::class, "destroy"])->name("projects.destroy");
+
+        Route::post('/analyst', [ProjectController::class, 'storeAnalyst'])->name('analysts.store');
 
         Route::get("/tasks", [TaskController::class, "index"])->name("tasks.index");
         Route::post("/tasks", [TaskController::class, "store"])->name("tasks.store");

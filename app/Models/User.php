@@ -8,6 +8,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\Permission\Models\Role;
+
 
 class User extends Authenticatable
 {
@@ -48,7 +50,20 @@ class User extends Authenticatable
     }
 
 
-    public function analyst() {
+    public static function withoutRoles()
+    {
+        return User::whereDoesntHave('roles')->get();
+    }
+
+    public static function assignRoleAnalystById(int $userId)
+    {
+        $user = self::findOrFail($userId);
+        $role = Role::findByName("analista");
+        $user->assignRole($role);
+    }
+
+    public function analyst()
+    {
         return $this->hasMany(Analyst::class);
     }
 }

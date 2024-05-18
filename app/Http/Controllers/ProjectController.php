@@ -8,6 +8,9 @@ use Inertia\Inertia;
 use App\Models\Contract;
 use App\Models\ProjectContract;
 use App\Models\Customer;
+use App\Models\Analyst;
+use App\Models\User;
+
 
 class ProjectController extends Controller
 {
@@ -15,9 +18,13 @@ class ProjectController extends Controller
     {
         $projects = Project::all();
         $projectsApproved = $this->getApprovedContractProyects();
+        $allAnalysts = Analyst::getAnalystsAndUserNames();
+        $userswithoutRole = User::withoutRoles();
         return Inertia::render('Project', [
             "projects" => $projects,
             "projectsApproved" => $projectsApproved,
+            "allAnalysts" => $allAnalysts,
+            "userswithoutRole" => $userswithoutRole,
         ]);
     }
 
@@ -54,9 +61,24 @@ class ProjectController extends Controller
         return redirect()->route('projects.index');
     }
 
+    public function storeAnalyst(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|exists:users,id',
+        ]);
+
+        $id = $request->input('id');
+
+        User::assignRoleAnalystById($id);
+        Analyst::syncWithUsers();
+
+        return to_route('projects.index');
+    }
+
     public function destroy($id)
     {
         Project::findOrFail($id)->delete();
+
         return redirect()->route('projects.index');
     }
 

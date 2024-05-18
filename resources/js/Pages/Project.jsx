@@ -7,7 +7,8 @@ import React, { useContext, useState } from "react";
 import { IoAddCircleOutline } from "react-icons/io5";
 import { EditButton, DeleteButton } from "@/Components/IconButtons";
 import ProgressBar from "@/Components/ProgressBar";
-
+import { FiUserPlus } from "react-icons/fi";
+import { CancelButton, OkButton } from "@/Components/IconButtons";
 import FormLayout from "@/Layouts/FormLayout";
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
@@ -16,9 +17,15 @@ import TextInput from "@/Components/TextInput";
 import TitleTable from "@/Components/TitleTable";
 
 const ProjectContext = React.createContext();
-export default function Project({ auth, projects, projectsApproved }) {
+export default function Project({
+    auth,
+    projects,
+    projectsApproved,
+    userswithoutRole,
+    allAnalysts,
+}) {
     const [showModal, setShowModal] = useState(false);
-
+    const [showModal2, setShowModal2] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [projectData, setProjectData] = useState({
         id: "",
@@ -55,14 +62,10 @@ export default function Project({ auth, projects, projectsApproved }) {
             user={auth.user}
             role={auth.user.roles[0].name}
             header={
-                <CustomButton
-                    color="blue"
-                    onClick={() => setShowModal(true)}
-                    className="bg-blue-500 gap-2 hover:bg-blue-600"
-                >
-                    Agregar
-                    <IoAddCircleOutline className="text-xl" />
-                </CustomButton>
+                <ButtonsNav
+                    setShowModal={setShowModal}
+                    setShowModal2={setShowModal2}
+                />
             }
         >
             <Head title="Projects" />
@@ -75,8 +78,22 @@ export default function Project({ auth, projects, projectsApproved }) {
                     }}
                 >
                     <div className="p-4">
-                        <ProjectForm projectsApproved={projectsApproved} />
+                        <ProjectForm
+                            projectsApproved={projectsApproved}
+                            setShowModal={setShowModal}
+                        />
                     </div>
+                </Modal>
+                <Modal
+                    show={showModal2}
+                    onClose={() => {
+                        setShowModal2(false);
+                    }}
+                >
+                    <AnalystForm
+                        setShowModal2={setShowModal2}
+                        userswithoutRole={userswithoutRole}
+                    />
                 </Modal>
                 <Canvas>
                     <Table
@@ -90,7 +107,78 @@ export default function Project({ auth, projects, projectsApproved }) {
     );
 }
 
-function ProjectForm({ projectsApproved }) {
+function ButtonsNav({ setShowModal, setShowModal2 }) {
+    return (
+        <div className="space-x-2">
+            <CustomButton
+                color="blue"
+                onClick={() => setShowModal(true)}
+                className="bg-blue-500 gap-2 hover:bg-blue-600"
+            >
+                Add Project
+                <IoAddCircleOutline className="text-xl" />
+            </CustomButton>
+            <CustomButton
+                color="blue"
+                onClick={() => setShowModal2(true)}
+                className="bg-blue-500 gap-2 hover:bg-blue-600"
+            >
+                Add Analyst
+                <FiUserPlus className="text-xl" />
+            </CustomButton>
+        </div>
+    );
+}
+
+function AnalystForm({ setShowModal2, userswithoutRole }) {
+    const { data, setData, post, errors } = useForm({
+        id: 0,
+    });
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        post(route("analysts.store"));
+    };
+    return (
+        <div className="p-4">
+            <h2 className="text-xl font-bold mb-4">Convertir a Analista</h2>
+            <form onSubmit={handleSubmit}>
+                <div>
+                    <InputLabel htmlFor="user" value="Usuarios sin rol" />
+                    <SelectInput
+                        id="user"
+                        name="user"
+                        value={data.id}
+                        onChange={(e) => setData("id", e.target.value)}
+                        className="mt-1 block w-full"
+                    >
+                        <option value="">Selecciona un usuario...</option>
+                        {userswithoutRole && userswithoutRole.length > 0 ? (
+                            userswithoutRole.map((user) => (
+                                <option key={user.id} value={user.id}>
+                                    {user.name}
+                                </option>
+                            ))
+                        ) : (
+                            <option value="">No hay usuarios sin rol...</option>
+                        )}
+                    </SelectInput>
+                    <InputError message={errors.id} className="mt-2" />
+                </div>
+                <div className="flex justify-end mt-3 space-x-1">
+                    <CancelButton
+                        text="Cancel"
+                        onClick={() => setShowModal2(false)}
+                        className="w-20"
+                    />
+                    <OkButton type="submit" text="Ok" className="w-20" />
+                </div>
+            </form>
+        </div>
+    );
+}
+
+function ProjectForm({ projectsApproved, setShowModal }) {
     const { editMode, projectData, setEditMode, setProjectData } =
         useContext(ProjectContext);
     const { data, setData, post, patch, errors } = useForm({
@@ -233,10 +321,13 @@ function ProjectForm({ projectsApproved }) {
                     </SelectInput>
                     <InputError message={errors.status} className="mt-2" />
                 </div>
-                <div className="flex justify-end mt-3">
-                    <CustomButton type="submit" color="blue">
-                        {editMode ? "Editar" : "Agregar"}
-                    </CustomButton>
+                <div className="flex justify-end mt-3 space-x-1">
+                    <CancelButton
+                        text="Cancel"
+                        onClick={() => setShowModal(false)}
+                        className="w-20"
+                    />
+                    <OkButton type="submit" text="Ok" className="w-20" />
                 </div>
             </form>
         </>
@@ -294,7 +385,6 @@ function TableRow({ proyecto, customerName, setShowModal }) {
         </tr>
     );
 }
-
 
 function Table({ projects, projectsApproved, setShowModal }) {
     return (
