@@ -10,6 +10,7 @@ use Spatie\Permission\Middleware\RoleMiddleware;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\TaskController;
 
 Route::get('/', function () {
     $userID = Auth::getUser()->id;
@@ -50,12 +51,21 @@ Route::middleware(["auth", RoleMiddleware::class . ":jefe"])->group(
         Route::patch("/projects/{id}", [ProjectController::class, "update"])->name("projects.update");
         Route::delete("/projects/{id}", [ProjectController::class, "destroy"])->name("projects.destroy");
 
-        Route::get("/tasks", [ProjectController::class, "index"])->name("projects.index");
-        Route::post("/projects", [ProjectController::class, "store"])->name("projects.store");
-        Route::patch("/projects/{id}", [ProjectController::class, "update"])->name("projects.update");
-        Route::delete("/projects/{id}", [ProjectController::class, "destroy"])->name("projects.destroy");
+        Route::get("/tasks", [TaskController::class, "index"])->name("tasks.index");
+        Route::post("/tasks", [TaskController::class, "store"])->name("tasks.store");
+        Route::patch("/tasks/{id}", [TaskController::class, "update"])->name("tasks.update");
+        Route::delete("/tasks/{id}", [TaskController::class, "destroy"])->name("tasks.destroy");
     }
 );
+
+// Route::middleware(["auth", RoleMiddleware::class . ":analista"])->group(
+//     function () {
+//         Route::get("/projects", [ProjectController::class, "index"])->name("projects.index");
+//         Route::post("/projects", [ProjectController::class, "store"])->name("projects.store");
+//         Route::patch("/projects/{id}", [ProjectController::class, "update"])->name("projects.update");
+//         Route::delete("/projects/{id}", [ProjectController::class, "destroy"])->name("projects.destroy");
+//     }
+// );
 
 
 require __DIR__ . '/auth.php';

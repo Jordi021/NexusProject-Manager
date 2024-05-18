@@ -5,10 +5,10 @@ import NavLink from "@/Components/NavLink";
 import ResponsiveNavLink from "@/Components/ResponsiveNavLink";
 import { Link } from "@inertiajs/react";
 
-export default function Authenticated({ user, header, children, role}) {
+export default function Authenticated({ user, header, children, role }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
-        
+
     return (
         <div className="min-h-screen bg-gray-100">
             <nav className="bg-white border-b border-gray-100">
@@ -47,20 +47,18 @@ export default function Authenticated({ user, header, children, role}) {
                                 {role === "jefe" && (
                                     <>
                                         <NavLink
-                                        href={route(
-                                            "projects.index"
-                                        )}
-                                        active={route().current(
-                                            "projects.index"
-                                        )}
+                                            href={route("projects.index")}
+                                            active={route().current(
+                                                "projects.index"
+                                            )}
                                         >
                                             Projects
                                         </NavLink>
                                         <NavLink
-                                        // href={route("customers.index")}
-                                        // active={route().current(
-                                        //     "customers.index"
-                                        // )}
+                                            href={route("tasks.index")}
+                                            active={route().current(
+                                                "tasks.index"
+                                            )}
                                         >
                                             Taks
                                         </NavLink>
@@ -184,6 +182,54 @@ export default function Authenticated({ user, header, children, role}) {
                         >
                             welcome
                         </ResponsiveNavLink>
+                        {role === "gerente" && (
+                            <>
+                                <ResponsiveNavLink
+                                    href={route("projects-contracts.index")}
+                                    active={route().current(
+                                        "projects-contracts.index"
+                                    )}
+                                >
+                                    Project Review
+                                </ResponsiveNavLink>
+                                <ResponsiveNavLink
+                                    href={route("customers.index")}
+                                    active={route().current("customers.index")}
+                                >
+                                    Customers
+                                </ResponsiveNavLink>
+                            </>
+                        )}
+                        {role === "jefe" && (
+                            <>
+                                <ResponsiveNavLink
+                                    href={route("projects.index")}
+                                    active={route().current("projects.index")}
+                                >
+                                    Projects
+                                </ResponsiveNavLink>
+                                <ResponsiveNavLink
+                                    href={route("tasks.index")}
+                                    active={route().current("tasks.index")}
+                                >
+                                    Taks
+                                </ResponsiveNavLink>
+                            </>
+                        )}
+                        {role === "analista" && (
+                            <>
+                                <ResponsiveNavLink
+                                // href={route(
+                                //     "projects-contracts.index"
+                                // )}
+                                // active={route().current(
+                                //     "projects-contracts.index"
+                                // )}
+                                >
+                                    To Do
+                                </ResponsiveNavLink>
+                            </>
+                        )}
                     </div>
 
                     <div className="pt-4 pb-1 border-t border-gray-200">

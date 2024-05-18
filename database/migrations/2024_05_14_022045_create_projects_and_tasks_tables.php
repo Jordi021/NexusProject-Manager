@@ -12,31 +12,30 @@ return new class extends Migration
     public function up(): void
     {
 
-        Schema::create('tasks', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->text('description')->nullable();
-            $table->text('content')->nullable();
-            $table->enum('status', ['en_progreso', 'finalizado']);
-            $table->timestamps();
-        });
-
         Schema::create('projects', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->date('start_date');
             $table->date('end_date');
             $table->integer('progress')->default(0);
-            $table->enum('status', ['Iniciado', 'En Desarrollo', 'Cancelado', 'Finalizado'])->default('iniciado');
+            $table->enum('status', ['Iniciado', 'En Desarrollo', 'Cancelado', 'Finalizado'])->default('Iniciado');
             $table->foreignId('contract_id')->constrained('contracts')->onDelete('cascade');
-            $table->foreignId('task_id')->nullable()->constrained('tasks')->onDelete('cascade');
             $table->timestamps();
         });
 
-        Schema::create('analistas', function (Blueprint $table) {
+        Schema::create('analysts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('task_id')->nullable()->constrained('tasks')->onDelete('cascade');
+            $table->timestamps();
+        });
+
+        Schema::create('tasks', function (Blueprint $table) {
+            $table->id();
+            $table->text('description');
+            $table->text('content');
+            $table->enum('status', ['En progreso', 'Finalizado']);
+            $table->foreignId('project_id')->constrained('projects')->onDelete('cascade');
+            $table->foreignId('analyst_id')->constrained('analysts')->onDelete('cascade');
             $table->timestamps();
         });
     }

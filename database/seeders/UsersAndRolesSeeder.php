@@ -33,6 +33,22 @@ class UsersAndRolesSeeder extends Seeder
                 'name' => 'Jefe',
                 'role' => 'jefe',
             ],
+            [
+                'name' => 'Jordan',
+                'role' => 'analista',
+            ],
+            [
+                'name' => 'Kevin',
+                'role' => 'analista',
+            ],
+            [
+                'name' => 'Tatiana',
+                'role' => 'analista',
+            ],
+            [
+                'name' => 'Masciel',
+                'role' => 'analista',
+            ],
         ];
 
         foreach ($usersData as $userData) {
@@ -41,9 +57,6 @@ class UsersAndRolesSeeder extends Seeder
                 'email' => strtolower($userData["name"]) . '@gmail.com',
                 'password' => bcrypt('password'),
             ]);
-            // $user = User::where("name", $userData["name"])->first();
-            // $userRole = Role::where("name", $userData["role"])->first();
-            // $user->assignRole($userRole);
         }
 
         foreach ($usersData as $userData) {

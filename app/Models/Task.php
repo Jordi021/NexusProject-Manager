@@ -9,14 +9,16 @@ use Mockery\Matcher\Any;
 class Task extends Model
 {
     use HasFactory;
-    protected $fillable = ['name', 'description', 'content', 'status'];
+    protected $fillable = ['description', 'content', 'status', 'project_id', 'analyst_id'];
 
 
-    public function project() {
+    public function project()
+    {
         return $this->belongsTo(Project::class);
     }
 
-    public function analyst() {
+    public function analyst()
+    {
         return $this->belongsTo(Analyst::class);
     }
 }

@@ -13,6 +13,7 @@ import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
 import SelectInput from "@/Components/SelectInput";
 import TextInput from "@/Components/TextInput";
+import TitleTable from "@/Components/TitleTable";
 
 const ProjectContext = React.createContext();
 export default function Project({ auth, projects, projectsApproved }) {
@@ -294,16 +295,6 @@ function TableRow({ proyecto, customerName, setShowModal }) {
     );
 }
 
-function Title({ colName }) {
-    return (
-        <th
-            scope="col"
-            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-        >
-            {colName}
-        </th>
-    );
-}
 
 function Table({ projects, projectsApproved, setShowModal }) {
     return (
@@ -312,13 +303,13 @@ function Table({ projects, projectsApproved, setShowModal }) {
                 <table className="min-w-full divide-y divide-gray-200 rounded-lg overflow-hidden">
                     <thead className="bg-gray-100">
                         <tr>
-                            <Title colName="Cliente" />
-                            <Title colName="Nombre" />
-                            <Title colName="Fecha Inicio" />
-                            <Title colName="Fecha Fin" />
-                            <Title colName="Estado" />
-                            <Title colName="Porcentaje Avance" />
-                            <Title colName="Acciones" />
+                            <TitleTable colName="Cliente" />
+                            <TitleTable colName="Nombre" />
+                            <TitleTable colName="Fecha Inicio" />
+                            <TitleTable colName="Fecha Fin" />
+                            <TitleTable colName="Estado" />
+                            <TitleTable colName="Porcentaje Avance" />
+                            <TitleTable colName="Acciones" />
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">

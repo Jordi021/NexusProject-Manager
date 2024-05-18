@@ -14,7 +14,7 @@
 # Inspirate
     php artisan inspire
 # Git
-    1.git config --global core.autocrlf true (opcional en caso de warnings o conflictos con el git add )
+    1.git config --global core.autocrlf true (opcional en caso de warning o conflictos con el git add )
     2.git add .
     3.git commit -m "" 
     4.git push [remoto] [rama] (para solo subir los cambios de la rama main!! remoto = origin)

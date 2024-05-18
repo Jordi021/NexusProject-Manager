@@ -1,6 +1,7 @@
 <?php
 
 namespace Database\Seeders;
+use App\Models\Analyst;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -15,5 +16,6 @@ class DatabaseSeeder extends Seeder
         $this->call(UsersAndRolesSeeder::class);
         $this->call(CustomerSeeder::class);
         $this->call(ProjectContractSeeder::class);
+        Analyst::syncWithUsers();
     }
 }
