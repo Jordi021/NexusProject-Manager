@@ -202,19 +202,6 @@ function TaskForm({ projects, analysts, setShowModal }) {
                     <InputError message={errors.content} className="mt-2" />
                 </div>
                 <div>
-                    {/* <InputLabel htmlFor="status" value="Estado" />
-                    <SelectInput
-                        id="status"
-                        name="status"
-                        value={data.status}
-                        onChange={(e) => setData("status", e.target.value)}
-                        className="mt-1 block w-full"
-                    >
-                        <option value="">Selecciona un estado...</option>
-                        <option value="En progreso">En progreso</option>
-                        <option value="Finalizado">Finalizado</option>
-                    </SelectInput>
-                    <InputError message={errors.status} className="mt-2" /> */}
                 </div>
                 <div className="flex justify-end mt-3 space-x-1">
                     <CancelButton

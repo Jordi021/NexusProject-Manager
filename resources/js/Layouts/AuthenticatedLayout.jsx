@@ -67,12 +67,10 @@ export default function Authenticated({ user, header, children, role }) {
                                 {role === "analista" && (
                                     <>
                                         <NavLink
-                                        // href={route(
-                                        //     "projects-contracts.index"
-                                        // )}
-                                        // active={route().current(
-                                        //     "projects-contracts.index"
-                                        // )}
+                                            href={route("to-do.index")}
+                                            active={route().current(
+                                                "to-do.index"
+                                            )}
                                         >
                                             To Do
                                         </NavLink>
@@ -219,12 +217,8 @@ export default function Authenticated({ user, header, children, role }) {
                         {role === "analista" && (
                             <>
                                 <ResponsiveNavLink
-                                // href={route(
-                                //     "projects-contracts.index"
-                                // )}
-                                // active={route().current(
-                                //     "projects-contracts.index"
-                                // )}
+                                    href={route("to-do.index")}
+                                    active={route().current("to-do.index")}
                                 >
                                     To Do
                                 </ResponsiveNavLink>

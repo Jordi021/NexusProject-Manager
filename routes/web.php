@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\ToDoController;
 
 Route::get('/', function () {
     $userID = Auth::getUser()->id;
@@ -61,14 +62,12 @@ Route::middleware(["auth", RoleMiddleware::class . ":jefe"])->group(
     }
 );
 
-// Route::middleware(["auth", RoleMiddleware::class . ":analista"])->group(
-//     function () {
-//         Route::get("/projects", [ProjectController::class, "index"])->name("projects.index");
-//         Route::post("/projects", [ProjectController::class, "store"])->name("projects.store");
-//         Route::patch("/projects/{id}", [ProjectController::class, "update"])->name("projects.update");
-//         Route::delete("/projects/{id}", [ProjectController::class, "destroy"])->name("projects.destroy");
-//     }
-// );
+Route::middleware(["auth", RoleMiddleware::class . ":analista"])->group(
+    function () {
+        Route::get("/to-do", [ToDoController::class, "index"])->name("to-do.index");
+        Route::patch("/to-do/{id}/{status}", [ToDoController::class, "update"])->name("to-do.update");
+    }
+);
 
 
 require __DIR__ . '/auth.php';
