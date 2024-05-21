@@ -5,7 +5,7 @@ export default function CarouselCustomNavigation() {
         <Carousel
             className="rounded-xl mt-6"
             navigation={({ setActiveIndex, activeIndex, length }) => (
-                <div className=" max-w-7xl mx-auto sm:px-6 lg:px-8  <CarouselCustomNavigation />">
+                <div className=" max-w-7xl mx-auto sm:px-6 lg:px-8">
                     {new Array(length).fill("").map((_, i) => (
                         <span
                             key={i}

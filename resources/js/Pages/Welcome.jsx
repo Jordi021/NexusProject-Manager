@@ -1,6 +1,6 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head } from "@inertiajs/react";
-import CarouselCustomNavigation from "@/Components/Images.jsx";
+import WelcomeCarousel from "@/Components/WelcomeCarousel";
 
 export default function welcome({ auth, role }) {
     return (
@@ -13,6 +13,7 @@ export default function welcome({ auth, role }) {
             }
             role={role}
         >
+            <Head title="Welcome"/>
             <div className="pt-4">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -20,7 +21,7 @@ export default function welcome({ auth, role }) {
                             You're logged in! {role}
                         </div>
                     </div>
-                    <CarouselCustomNavigation />
+                    <WelcomeCarousel />
                 </div>
             </div>
         </AuthenticatedLayout>
