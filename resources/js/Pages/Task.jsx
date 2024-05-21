@@ -4,10 +4,14 @@ import Authenticated from "@/Layouts/AuthenticatedLayout";
 import TitleTable from "@/Components/TitleTable";
 import CustomButton from "@/Components/CustomButton";
 import { IoAddCircleOutline } from "react-icons/io5";
-import { EditButton, DeleteButton } from "@/Components/IconButtons";
+import {
+    EditButton,
+    DeleteButton,
+    CancelButton,
+    OkButton,
+} from "@/Components/IconButtons";
 import Canvas from "@/Layouts/CanvasLayout";
 import TextArea from "@/Components/TextArea";
-import { CancelButton, OkButton } from "@/Components/IconButtons";
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
 import TextInput from "@/Components/TextInput";
@@ -15,9 +19,9 @@ import SelectInput from "@/Components/SelectInput";
 import Modal from "@/Components/Modal";
 
 const TaskContext = createContext();
+
 export default function Task({ auth, tasks, projects, analysts }) {
     const [showModal, setShowModal] = useState(false);
-
     const [editMode, setEditMode] = useState(false);
     const [taskData, setTaskData] = useState({
         id: "",
@@ -95,7 +99,7 @@ export default function Task({ auth, tasks, projects, analysts }) {
 
 function TaskForm({ projects, analysts, setShowModal }) {
     const { editMode, taskData, setTaskData } = useContext(TaskContext);
-    const { data, setData, post, patch, errors } = useForm({
+    const { data, setData, post, patch, errors, reset } = useForm({
         description: editMode ? taskData.description : "",
         content: editMode ? taskData.content : "",
         status: editMode ? taskData.status : "En progreso",
@@ -106,31 +110,45 @@ function TaskForm({ projects, analysts, setShowModal }) {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (editMode) {
-            patch(route("tasks.update", taskData.id), data, {
-                onSuccess: () => {
-                    setTaskData({
-                        id: taskData.id,
-                        description: data.description,
-                        content: data.content,
-                        status: data.status,
-                        project_id: data.project_id,
-                        analyst_id: data.analyst_id,
-                    });
-                    reset();
-                    setShowModal(false);
+            patch(
+                route("tasks.update", taskData.id),
+                {
+                    ...data,
                 },
-            });
+                {
+                    onSuccess: () => {
+                        setTaskData({
+                            id: taskData.id,
+                            description: data.description,
+                            content: data.content,
+                            status: data.status,
+                            project_id: data.project_id,
+                            analyst_id: data.analyst_id,
+                        });
+                        reset();
+                        setShowModal(false);
+                    },
+                }
+            );
         } else {
-            post(route("tasks.store"), data, {
-                onSuccess: () => {
-                    reset();
-                    setShowModal(false);
+            post(
+                route("tasks.store"),
+                {
+                    ...data,
                 },
-            });
+                {
+                    onSuccess: () => {
+                        reset();
+                        setShowModal(false);
+                    },
+                }
+            );
         }
     };
 
-    const handleCancel = () => {
+    const handleCancel = (e) => {
+        e.preventDefault();
+        reset();
         setShowModal(false);
     };
 
@@ -211,7 +229,6 @@ function TaskForm({ projects, analysts, setShowModal }) {
                     />
                     <InputError message={errors.content} className="mt-2" />
                 </div>
-                <div></div>
                 <div className="flex justify-end mt-3 space-x-1">
                     <CancelButton
                         text="Cancel"
@@ -249,8 +266,12 @@ function TableRow({ task, analyst, project, setShowModal }) {
     return (
         <tr>
             <td className="px-6 py-4 whitespace-pre-wrap">{project.name}</td>
-            <td className="px-6 py-4 whitespace-pre-wrap">{analyst.user_name}</td>
-            <td className="px-6 py-4 whitespace-pre-wrap">{task.description}</td>
+            <td className="px-6 py-4 whitespace-pre-wrap">
+                {analyst.user_name}
+            </td>
+            <td className="px-6 py-4 whitespace-pre-wrap">
+                {task.description}
+            </td>
             <td className="px-6 py-4 whitespace-pre-wrap">{task.content}</td>
             <td className="px-6 py-4 whitespace-nowrap">{task.status}</td>
             <td className="px-6 py-4 whitespace-nowrap">
