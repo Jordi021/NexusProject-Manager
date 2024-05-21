@@ -11,6 +11,7 @@ import Listar from "@/Components/Listar";
 import SelectInput from "@/Components/SelectInput";
 import { FaEllipsisH } from "react-icons/fa";
 import Dropdown from "@/Components/Dropdown";
+import { Chip } from "@material-tailwind/react";
 
 export default function ProjectReview({
     auth,
@@ -66,12 +67,35 @@ export default function ProjectReview({
 }
 
 function NavReview({ handleActiveTab }) {
+    const [activeTab, setActiveTab] = useState("agregarProyectos");
+
+    const handleTabClick = (tab) => {
+        setActiveTab(tab);
+        handleActiveTab(tab);
+    };
+
     return (
-        <div className="space-x-5">
-            <button onClick={() => handleActiveTab("agregarProyectos")}>
-                Agregar
+        <div className="space-x-1">
+            <button
+                onClick={() => handleTabClick("agregarProyectos")}
+                className={`px-4 py-3 rounded-md transition duration-150 ${
+                    activeTab === "agregarProyectos"
+                        ? "bg-blue-400 text-white"
+                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+            >
+                Add
             </button>
-            <button onClick={() => handleActiveTab("listar")}>Listar</button>
+            <button
+                onClick={() => handleTabClick("listar")}
+                className={`px-4 py-3 rounded-md transition duration-150 ${
+                    activeTab === "listar"
+                        ? "bg-blue-400 text-white"
+                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+            >
+                List
+            </button>
         </div>
     );
 }
@@ -92,27 +116,55 @@ function ProjectPending({ contract, clientes }) {
     };
 
     return (
-        <div className="border-2 border-gray-400 rounded-md p-4 mt-5">
+        <div className="shadow-xl border border-gray-100 rounded-md p-6 mt-5">
             <div className="flex justify-between">
                 <p className="text-lg font-medium mb-2">
-                    Client Name: {cliente.name}
+                    <span className="font-bold">Client Name:</span>{" "}
+                    {cliente.name}
                 </p>
                 <Options id={contract.id} handleDelete={handleDelete} />
             </div>
-            <p className="text-gray-600 mb-2">Problem: {contract.problem}</p>
             <p className="text-gray-600 mb-2">
-                Requirements: {contract.requirements}
+                <span className="font-bold">Problem:</span> {contract.problem}
             </p>
-            <p className="text-gray-600 mb-2">Status: {contract.status}</p>
+            <p className="text-gray-600 mb-2">
+                <span className="font-bold">Requirements:</span>{" "}
+                {contract.requirements}
+            </p>
+            <div className="text-gray-600 mb-2">
+                <Chip
+                    value={contract.status}
+                    variant="ghost"
+                    className="w-20"
+                />
+            </div>
             <div className="flex space-x-2 justify-end">
                 <CustomButton
-                    color="green"
+                    className=" inline-flex items-center px-4 py-2
+                                        bg-green-500 border border-transparent 
+                                        rounded-md font-semibold text-xs text-white 
+                                        uppercase tracking-widest 
+                                        hover:bg-green-700 focus:bg-green-700 
+                                        active:bg-green-800 
+                                        focus:outline-none 
+                                        focus:ring-2 focus:ring-green-500 
+                                        focus:ring-offset-2 
+                                        transition ease-in-out duration-150"
                     onClick={() => handleApprove(contract.id)}
                 >
                     Approve
                 </CustomButton>
                 <CustomButton
-                    color="red"
+                    className=" inline-flex items-center px-4 py-2
+                                bg-red-500 border border-transparent 
+                                rounded-md font-semibold text-xs text-white 
+                                uppercase tracking-widest 
+                                hover:bg-red-700 focus:bg-red-700 
+                                active:bg-red-800 
+                                focus:outline-none 
+                                focus:ring-2 focus:ring-red-500 
+                                focus:ring-offset-2 
+                                transition ease-in-out duration-150"
                     onClick={() => handleArchive(contract.id)}
                 >
                     Archived
@@ -142,9 +194,6 @@ function Options({ id, handleDelete }) {
                             Eliminar
                         </button>
                     </div>
-                    {/* <div className="py-2 hover:bg-gray-200 px-5">
-              <button>Editar</button>
-            </div> */}
                 </Dropdown.Content>
             </Dropdown>
         </>
@@ -195,43 +244,48 @@ function ContractForm({ projectsContracts, clientes }) {
                                 </option>
                             ))}
                         </SelectInput>
+                        <InputError message={errors.customer_id} />
                     </div>
-                    <div>
-                        <InputLabel htmlFor="problem" value="Problem:" />
-                        <TextArea
-                            id="problem"
-                            value={data.problem}
-                            className="mt-1 block w-full"
-                            size="small"
-                            onChange={(e) => setData("problem", e.target.value)}
-                        />
-                    </div>
-                    <div>
-                        <InputLabel
-                            htmlFor="requirements"
-                            value="Requirements:"
-                        />
+                    <div className="flex space-x-5">
+                        <div className="flex-1">
+                            <InputLabel htmlFor="problem" value="Problem:" />
+                            <TextArea
+                                id="problem"
+                                value={data.problem}
+                                className="mt-1 block w-full"
+                                size="medium"
+                                onChange={(e) =>
+                                    setData("problem", e.target.value)
+                                }
+                            />
+                        </div>
+                        <div className="flex-1">
+                            <InputLabel
+                                htmlFor="requirements"
+                                value="Requirements:"
+                            />
 
-                        <TextArea
-                            id="requirements"
-                            value={data.requirements}
-                            className="mt-1 block w-full"
-                            size="small"
-                            onChange={(e) =>
-                                setData("requirements", e.target.value)
-                            }
-                        />
+                            <TextArea
+                                id="requirements"
+                                value={data.requirements}
+                                className="mt-1 block w-full"
+                                size="medium"
+                                onChange={(e) =>
+                                    setData("requirements", e.target.value)
+                                }
+                            />
+                        </div>
                     </div>
                     <div className="flex justify-end mt-3">
                         <CustomButton type="submit" color="blue">
-                            Agregar
+                            ADD
                         </CustomButton>
                     </div>
                 </form>
             </div>
-            <h1>Pendientes:</h1>
+            <h1>Pending contracts:</h1>
             {projectsContracts.length < 1 ? (
-                <p>No hay proyectos pendientes que revisar.</p>
+                <p>There are no pending projects to review.</p>
             ) : (
                 projectsContracts.map((contract) => (
                     <ProjectPending

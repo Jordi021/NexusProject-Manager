@@ -60,7 +60,7 @@ export default function Authenticated({ user, header, children, role }) {
                                                 "tasks.index"
                                             )}
                                         >
-                                            Taks
+                                            Tasks
                                         </NavLink>
                                     </>
                                 )}
@@ -210,7 +210,7 @@ export default function Authenticated({ user, header, children, role }) {
                                     href={route("tasks.index")}
                                     active={route().current("tasks.index")}
                                 >
-                                    Taks
+                                    Tasks
                                 </ResponsiveNavLink>
                             </>
                         )}

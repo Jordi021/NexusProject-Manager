@@ -9,7 +9,6 @@ import { EditButton, DeleteButton } from "@/Components/IconButtons";
 import ProgressBar from "@/Components/ProgressBar";
 import { FiUserPlus } from "react-icons/fi";
 import { CancelButton, OkButton } from "@/Components/IconButtons";
-import FormLayout from "@/Layouts/FormLayout";
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
 import SelectInput from "@/Components/SelectInput";
@@ -141,10 +140,10 @@ function AnalystForm({ setShowModal2, userswithoutRole }) {
     };
     return (
         <div className="p-4">
-            <h2 className="text-xl font-bold mb-4">Convertir a Analista</h2>
+            <h2 className="text-xl font-bold mb-4">Convert to Analyst</h2>
             <form onSubmit={handleSubmit}>
                 <div>
-                    <InputLabel htmlFor="user" value="Usuarios sin rol" />
+                    <InputLabel htmlFor="user" value="Users without role" />
                     <SelectInput
                         id="user"
                         name="user"
@@ -152,7 +151,7 @@ function AnalystForm({ setShowModal2, userswithoutRole }) {
                         onChange={(e) => setData("id", e.target.value)}
                         className="mt-1 block w-full"
                     >
-                        <option value="">Selecciona un usuario...</option>
+                        <option value="">Select a user...</option>
                         {userswithoutRole && userswithoutRole.length > 0 ? (
                             userswithoutRole.map((user) => (
                                 <option key={user.id} value={user.id}>
@@ -160,7 +159,9 @@ function AnalystForm({ setShowModal2, userswithoutRole }) {
                                 </option>
                             ))
                         ) : (
-                            <option value="">No hay usuarios sin rol...</option>
+                            <option value="">
+                                There are no users without a role...
+                            </option>
                         )}
                     </SelectInput>
                     <InputError message={errors.id} className="mt-2" />
@@ -181,7 +182,7 @@ function AnalystForm({ setShowModal2, userswithoutRole }) {
 function ProjectForm({ projectsApproved, setShowModal }) {
     const { editMode, projectData, setEditMode, setProjectData } =
         useContext(ProjectContext);
-    const { data, setData, post, patch, errors } = useForm({
+    const { data, setData, post, patch, errors, reset } = useForm({
         name: editMode ? projectData.name : "",
         start_date: editMode ? projectData.start_date : getCurrentDate(),
         end_date: editMode ? projectData.end_date : getCurrentDate(),
@@ -195,10 +196,25 @@ function ProjectForm({ projectsApproved, setShowModal }) {
         editMode
             ? patch(route("projects.update", projectData.id), data)
             : post(route("projects.store"), data);
-        reset();
+
+        if (errors.name) setData("name", "");
+        if (errors.start_date) setData("start_date", getCurrentDate());
+        if (errors.end_date) setData("end_date", getCurrentDate());
+        if (errors.progress) setData("progress", 0);
+        if (errors.status) setData("status", "");
+        if (errors.contract_id) setData("contract_id", "");
     };
 
-    const reset = () => {
+    const handleCancel = () => {
+        setData({
+            name: "",
+            start_date: getCurrentDate(),
+            end_date: getCurrentDate(),
+            progress: 0,
+            status: "",
+            contract_id: "",
+        });
+        setEditMode(false);
         setProjectData({
             id: "",
             name: "",
@@ -208,16 +224,19 @@ function ProjectForm({ projectsApproved, setShowModal }) {
             status: "",
             contract_id: "",
         });
+        setShowModal(false);
     };
 
     return (
-        <>
-            <h2 className="text-xl font-bold mb-4">Agregar Proyecto</h2>
+        <div className="p-2">
+            <h2 className="text-xl font-bold mb-4">
+                {editMode ? "Edit Project" : "Add Project"}
+            </h2>
             <form onSubmit={handleSubmit}>
                 <div>
                     <InputLabel
                         htmlFor="contract_id"
-                        value="Nombre del Cliente y Problema"
+                        value="Customer Name and Problem"
                     />
                     <SelectInput
                         id="contract_id"
@@ -226,9 +245,7 @@ function ProjectForm({ projectsApproved, setShowModal }) {
                         onChange={(e) => setData("contract_id", e.target.value)}
                         className="mt-1 block w-full"
                     >
-                        <option value="">
-                            Selecciona un cliente y problema...
-                        </option>
+                        <option value="">Select a client and problem...</option>
                         {projectsApproved && projectsApproved.length > 0 ? (
                             projectsApproved.map((projectApproved) => (
                                 <option
@@ -240,14 +257,14 @@ function ProjectForm({ projectsApproved, setShowModal }) {
                             ))
                         ) : (
                             <option value="">
-                                No hay contratos aprobados...
+                                There are no approved contracts...
                             </option>
                         )}
                     </SelectInput>
                     <InputError message={errors.contract_id} className="mt-2" />
                 </div>
                 <div>
-                    <InputLabel htmlFor="name" value="Nombre del Proyecto" />
+                    <InputLabel htmlFor="name" value="Project's name" />
                     <TextInput
                         id="name"
                         name="name"
@@ -259,7 +276,7 @@ function ProjectForm({ projectsApproved, setShowModal }) {
                 <InputError message={errors.name} className="mt-2" />
                 <div className="flex gap-5">
                     <div>
-                        <InputLabel htmlFor="start_date" value="Fecha Inicio" />
+                        <InputLabel htmlFor="start_date" value="Start Date" />
                         <input
                             type="date"
                             id="start_date"
@@ -268,6 +285,7 @@ function ProjectForm({ projectsApproved, setShowModal }) {
                             onChange={(e) =>
                                 setData("start_date", e.target.value)
                             }
+                            className="w-40 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                         <InputError
                             message={errors.start_date}
@@ -275,7 +293,7 @@ function ProjectForm({ projectsApproved, setShowModal }) {
                         />
                     </div>
                     <div>
-                        <InputLabel htmlFor="end_date" value="Fecha Fin" />
+                        <InputLabel htmlFor="end_date" value="End Date" />
                         <input
                             type="date"
                             id="end_date"
@@ -284,6 +302,7 @@ function ProjectForm({ projectsApproved, setShowModal }) {
                             onChange={(e) =>
                                 setData("end_date", e.target.value)
                             }
+                            className="w-40 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                         <InputError
                             message={errors.end_date}
@@ -292,7 +311,7 @@ function ProjectForm({ projectsApproved, setShowModal }) {
                     </div>
                 </div>
                 <div>
-                    <InputLabel htmlFor="progress" value="Avance" />
+                    <InputLabel htmlFor="progress" value="Progress" />
                     <input
                         id="progress"
                         name="progress"
@@ -301,11 +320,12 @@ function ProjectForm({ projectsApproved, setShowModal }) {
                         max="100"
                         value={data.progress}
                         onChange={(e) => setData("progress", e.target.value)}
+                        className="w-20 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     <InputError message={errors.progress} className="mt-2" />
                 </div>
                 <div>
-                    <InputLabel htmlFor="status" value="Estado" />
+                    <InputLabel htmlFor="status" value="Status" />
                     <SelectInput
                         id="status"
                         name="status"
@@ -313,24 +333,24 @@ function ProjectForm({ projectsApproved, setShowModal }) {
                         onChange={(e) => setData("status", e.target.value)}
                         className="mt-1 block w-full"
                     >
-                        <option value="">Selecciona un estado...</option>
-                        <option value="Iniciado">Iniciado</option>
-                        <option value="En Desarrollo">En desarrollo</option>
-                        <option value="Cancelado">Cancelado</option>
-                        <option value="Finalizado">Finalizado</option>
+                        <option value="">Select a status...</option>
+                        <option value="Iniciado">Initiated</option>
+                        <option value="En Desarrollo">Developing</option>
+                        <option value="Cancelado">Cancelled</option>
+                        <option value="Finalizado">Finished</option>
                     </SelectInput>
                     <InputError message={errors.status} className="mt-2" />
                 </div>
                 <div className="flex justify-end mt-3 space-x-1">
                     <CancelButton
                         text="Cancel"
-                        onClick={() => setShowModal(false)}
+                        onClick={handleCancel}
                         className="w-20"
                     />
                     <OkButton type="submit" text="Ok" className="w-20" />
                 </div>
             </form>
-        </>
+        </div>
     );
 }
 
@@ -366,8 +386,8 @@ function TableRow({ proyecto, customerName, setShowModal }) {
 
     return (
         <tr>
-            <td className="px-6 py-4 whitespace-nowrap">{customerName}</td>
-            <td className="px-6 py-4 whitespace-nowrap">{proyecto.name}</td>
+            <td className="px-6 py-4 whitespace-pre-wrap">{customerName}</td>
+            <td className="px-6 py-4 whitespace-pre-wrap">{proyecto.name}</td>
             <td className="px-6 py-4 whitespace-nowrap">
                 {proyecto.start_date}
             </td>
@@ -390,35 +410,37 @@ function Table({ projects, projectsApproved, setShowModal }) {
     return (
         <>
             {projects.length > 0 ? (
-                <table className="min-w-full divide-y divide-gray-200 rounded-lg overflow-hidden">
-                    <thead className="bg-gray-100">
-                        <tr>
-                            <TitleTable colName="Cliente" />
-                            <TitleTable colName="Nombre" />
-                            <TitleTable colName="Fecha Inicio" />
-                            <TitleTable colName="Fecha Fin" />
-                            <TitleTable colName="Estado" />
-                            <TitleTable colName="Porcentaje Avance" />
-                            <TitleTable colName="Acciones" />
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {projects.map((project) => {
-                            const approvedProject = projectsApproved.find(
-                                (pa) => pa.id === project.contract_id
-                            );
-                            const { customer_name } = approvedProject;
-                            return (
-                                <TableRow
-                                    key={project.id}
-                                    proyecto={project}
-                                    customerName={customer_name}
-                                    setShowModal={setShowModal}
-                                />
-                            );
-                        })}
-                    </tbody>
-                </table>
+                <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200 rounded-lg">
+                        <thead className="bg-gray-100">
+                            <tr>
+                                <TitleTable colName="Customer" />
+                                <TitleTable colName="Name" />
+                                <TitleTable colName="Start Date" />
+                                <TitleTable colName="End Date" />
+                                <TitleTable colName="Status" />
+                                <TitleTable colName="Progress Percentage" />
+                                <TitleTable colName="Actions" />
+                            </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                            {projects.map((project) => {
+                                const approvedProject = projectsApproved.find(
+                                    (pa) => pa.id === project.contract_id
+                                );
+                                const { customer_name } = approvedProject;
+                                return (
+                                    <TableRow
+                                        key={project.id}
+                                        proyecto={project}
+                                        customerName={customer_name}
+                                        setShowModal={setShowModal}
+                                    />
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </div>
             ) : (
                 <h2>No hay proyectos, agrega uno.</h2>
             )}

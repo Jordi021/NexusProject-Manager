@@ -12,7 +12,7 @@ export default function ToDo({ auth, tasks }) {
             role={auth.user.roles[0].name}
             header={
                 <h2 className="font-semibold text-xl text-gray-800 leading-tight">
-                    Tasks to do 🤓
+                    Tasks to do 📋
                 </h2>
             }
         >
@@ -53,23 +53,27 @@ function Table({ tasks }) {
                         <option value="En progreso">In progress</option>
                         <option value="Finalizado">Finished</option>
                     </select>
-                    <table className="min-w-full divide-y divide-gray-200 rounded-lg overflow-hidden">
-                        <thead className="bg-gray-100">
-                            <tr>
-                                <TitleTable colName="ID" />
-                                <TitleTable colName="Project" />
-                                <TitleTable colName="Description" />
-                                <TitleTable colName="Content" />
-                                <TitleTable colName="Status" />
-                                <TitleTable colName="Action" />
-                            </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                            {filteredTasks.map((task) => {
-                                return <TableRow key={task.id} task={task} />;
-                            })}
-                        </tbody>
-                    </table>
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200 rounded-lg">
+                            <thead className="bg-gray-100">
+                                <tr>
+                                    <TitleTable colName="ID" />
+                                    <TitleTable colName="Project" />
+                                    <TitleTable colName="Description" />
+                                    <TitleTable colName="Content" />
+                                    <TitleTable colName="Status" />
+                                    <TitleTable colName="Action" />
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {filteredTasks.map((task) => {
+                                    return (
+                                        <TableRow key={task.id} task={task} />
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
                 </>
             ) : (
                 <h2>You have nothing to do.📝</h2>
@@ -90,7 +94,7 @@ function TableRow({ task }) {
             <td className="px-6 py-4 whitespace-nowrap">{task.id}</td>
             <td className="px-6 py-4 whitespace-nowrap">{task.project_name}</td>
             <td className="px-6 py-4 whitespace-nowrap">{task.description}</td>
-            <td className="px-6 py-4 whitespace-nowrap">{task.content}</td>
+            <td className="px-6 py-4 whitespace-pre-wrap">{task.content}</td>
             <td className="px-6 py-4 whitespace-nowrap">{task.status}</td>
             <td className="px-6 py-4 whitespace-nowrap">
                 <div className="space-x-3">

@@ -17,9 +17,6 @@ import Modal from "@/Components/Modal";
 const TaskContext = createContext();
 export default function Task({ auth, tasks, projects, analysts }) {
     const [showModal, setShowModal] = useState(false);
-    // console.log(projects, "P");
-    // console.log(analysts, "A");
-    // console.log(tasks, "T");
 
     const [editMode, setEditMode] = useState(false);
     const [taskData, setTaskData] = useState({
@@ -108,28 +105,44 @@ function TaskForm({ projects, analysts, setShowModal }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        editMode
-            ? patch(route("tasks.update", taskData.id), data)
-            : post(route("tasks.store"), data);
-        reset();
+        if (editMode) {
+            patch(route("tasks.update", taskData.id), data, {
+                onSuccess: () => {
+                    setTaskData({
+                        id: taskData.id,
+                        description: data.description,
+                        content: data.content,
+                        status: data.status,
+                        project_id: data.project_id,
+                        analyst_id: data.analyst_id,
+                    });
+                    reset();
+                    setShowModal(false);
+                },
+            });
+        } else {
+            post(route("tasks.store"), data, {
+                onSuccess: () => {
+                    reset();
+                    setShowModal(false);
+                },
+            });
+        }
     };
 
-    const reset = () => {
-        setTaskData({
-            description: "",
-            content: "",
-            status: "En progreso",
-            project_id: "",
-            analyst_id: "",
-        });
+    const handleCancel = () => {
+        reset();
+        setShowModal(false);
     };
 
     return (
         <>
-            <h2 className="text-xl font-bold mb-4">Agregar Tarea</h2>
+            <h2 className="text-xl font-bold mb-4">
+                {editMode ? "Edit Task" : "Add Task"}
+            </h2>
             <form onSubmit={handleSubmit}>
                 <div>
-                    <InputLabel htmlFor="project_id" value="Proyecto" />
+                    <InputLabel htmlFor="project_id" value="Project" />
                     <SelectInput
                         id="project_id"
                         name="project_id"
@@ -137,7 +150,7 @@ function TaskForm({ projects, analysts, setShowModal }) {
                         onChange={(e) => setData("project_id", e.target.value)}
                         className="mt-1 block w-full"
                     >
-                        <option value="">Selecciona un proyecto...</option>
+                        <option value="">Select a project...</option>
                         {projects && projects.length > 0 ? (
                             projects.map((project) => (
                                 <option key={project.id} value={project.id}>
@@ -146,14 +159,14 @@ function TaskForm({ projects, analysts, setShowModal }) {
                             ))
                         ) : (
                             <option value="">
-                                No hay proyectos disponibles...
+                                There are no projects available...
                             </option>
                         )}
                     </SelectInput>
                     <InputError message={errors.project_id} className="mt-2" />
                 </div>
                 <div>
-                    <InputLabel htmlFor="analyst_id" value="Analista" />
+                    <InputLabel htmlFor="analyst_id" value="Analyst" />
                     <SelectInput
                         id="analyst_id"
                         name="analyst_id"
@@ -161,7 +174,7 @@ function TaskForm({ projects, analysts, setShowModal }) {
                         onChange={(e) => setData("analyst_id", e.target.value)}
                         className="mt-1 block w-full"
                     >
-                        <option value="">Selecciona un analista...</option>
+                        <option value="">Select an analyst...</option>
                         {analysts && analysts.length > 0 ? (
                             analysts.map((analyst) => (
                                 <option
@@ -172,15 +185,13 @@ function TaskForm({ projects, analysts, setShowModal }) {
                                 </option>
                             ))
                         ) : (
-                            <option value="">
-                                No hay analistas disponibles...
-                            </option>
+                            <option value="">No analysts available...</option>
                         )}
                     </SelectInput>
                     <InputError message={errors.analyst_id} className="mt-2" />
                 </div>
                 <div>
-                    <InputLabel htmlFor="description" value="Descripción" />
+                    <InputLabel htmlFor="description" value="Description" />
                     <TextInput
                         id="description"
                         name="description"
@@ -191,7 +202,7 @@ function TaskForm({ projects, analysts, setShowModal }) {
                     <InputError message={errors.description} className="mt-2" />
                 </div>
                 <div>
-                    <InputLabel htmlFor="content" value="Contenido" />
+                    <InputLabel htmlFor="content" value="Content" />
                     <TextArea
                         id="content"
                         name="content"
@@ -201,12 +212,11 @@ function TaskForm({ projects, analysts, setShowModal }) {
                     />
                     <InputError message={errors.content} className="mt-2" />
                 </div>
-                <div>
-                </div>
+                <div></div>
                 <div className="flex justify-end mt-3 space-x-1">
                     <CancelButton
                         text="Cancel"
-                        onClick={() => setShowModal(false)}
+                        onClick={handleCancel}
                         className="w-20"
                     />
                     <OkButton type="submit" text="Ok" className="w-20" />
@@ -223,6 +233,7 @@ function TableRow({ task, analyst, project, setShowModal }) {
     const handleDelete = (id) => {
         destroy(route("tasks.destroy", { id: id }));
     };
+
     const handleEditClick = () => {
         setEditMode(true);
         setTaskData({
@@ -238,10 +249,10 @@ function TableRow({ task, analyst, project, setShowModal }) {
 
     return (
         <tr>
-            <td className="px-6 py-4 whitespace-nowrap">{project.name}</td>
-            <td className="px-6 py-4 whitespace-nowrap">{analyst.user_name}</td>
-            <td className="px-6 py-4 whitespace-nowrap">{task.description}</td>
-            <td className="px-6 py-4 whitespace-nowrap">{task.content}</td>
+            <td className="px-6 py-4 whitespace-pre-wrap">{project.name}</td>
+            <td className="px-6 py-4 whitespace-pre-wrap">{analyst.user_name}</td>
+            <td className="px-6 py-4 whitespace-pre-wrap">{task.description}</td>
+            <td className="px-6 py-4 whitespace-pre-wrap">{task.content}</td>
             <td className="px-6 py-4 whitespace-nowrap">{task.status}</td>
             <td className="px-6 py-4 whitespace-nowrap">
                 <div className="space-x-3">
@@ -272,25 +283,31 @@ function Table({ tasks, projects, analysts, setShowModal }) {
     return (
         <>
             {tasks.length > 0 ? (
-                <>
-                    <select 
-                        className="w-36 px-4 py-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500"
+                <div className="overflow-x-auto">
+                    <SelectInput
+                        className="w-36 px-4 py-2 mb-4 border border-gray-300 rounded-md"
                         value={selectedOption}
                         onChange={handleOptionChange}
                     >
-                        <option value="Todos">Todos</option>
-                        <option value="En progreso">En progreso</option>
-                        <option value="Finalizado">Finalizado</option>
-                    </select>
-                    <table className="min-w-full divide-y divide-gray-200 rounded-lg overflow-hidden">
+                        <option value="Todos">All</option>
+                        <option value="En progreso">In progress</option>
+                        <option value="Finalizado">Finished</option>
+                    </SelectInput>
+                    <table className="min-w-full divide-y divide-gray-200 rounded-lg">
                         <thead className="bg-gray-100">
                             <tr>
-                                <TitleTable colName="Proyecto" />
-                                <TitleTable colName="Analista" />
-                                <TitleTable colName="Descripción" />
-                                <TitleTable colName="Contenido" />
-                                <TitleTable colName="Estado" />
-                                <TitleTable colName="Acciones" />
+                                <TitleTable colName="Project" />
+                                <TitleTable colName="Analyst" />
+                                <TitleTable
+                                    colName="Description"
+                                    className="hidden md:table-cell"
+                                />
+                                <TitleTable
+                                    colName="Content"
+                                    className="hidden md:table-cell"
+                                />
+                                <TitleTable colName="Status" />
+                                <TitleTable colName="Actions" />
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
@@ -314,7 +331,7 @@ function Table({ tasks, projects, analysts, setShowModal }) {
                             })}
                         </tbody>
                     </table>
-                </>
+                </div>
             ) : (
                 <h2>There are no tasks, add one.📝</h2>
             )}

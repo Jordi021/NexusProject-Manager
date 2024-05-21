@@ -51,7 +51,7 @@ export default function Customer({ auth, customers }) {
     return (
         <AuthenticatedLayout
             user={auth.user}
-            header={<h2 className="text-xl">Agregar Clientes🤑👻</h2>}
+            header={<h2 className="text-xl">Add Customers 📝</h2>}
             role={auth.user.roles[0].name}
         >
             <Head title="Customers" />
@@ -137,33 +137,35 @@ function List({ customers }) {
 
 function Table({ children }) {
     return (
-        <table className="min-w-full divide-y divide-gray-200 rounded-lg overflow-hidden">
-            <thead className="bg-gray-100">
-                <tr>
-                    <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                        Nombre
-                    </th>
-                    <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                        Email
-                    </th>
-                    <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                        Acciones
-                    </th>
-                </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-                {children}
-            </tbody>
-        </table>
+        <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200 rounded-lg overflow-hidden">
+                <thead className="bg-gray-100">
+                    <tr>
+                        <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                            Nombre
+                        </th>
+                        <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                            Email
+                        </th>
+                        <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                            Acciones
+                        </th>
+                    </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                    {children}
+                </tbody>
+            </table>
+        </div>
     );
 }
 
@@ -216,6 +218,7 @@ function CustomerForm() {
         }
     }, [isEditMode, handleEdit]);
 
+
     return (
         <div>
             <form onSubmit={isEditMode ? handleSubmitUpdate : handleSubmit}>
@@ -246,8 +249,21 @@ function CustomerForm() {
 
                     <InputError message={errors.email} className="mt-2" />
                 </div>
-                <div className="flex justify-end mt-3">
-                    <CustomButton type="submit" color="blue">
+                <div className="flex justify-center mt-3 md:justify-end">
+                    <CustomButton
+                        className="inline-flex items-center px-4 py-2
+                                bg-blue-500 border border-transparent 
+                                rounded-md font-semibold text-xs text-white 
+                                uppercase tracking-widest 
+                                hover:bg-blue-700 focus:bg-blue-700 
+                                active:bg-blue-800 
+                                focus:outline-none 
+                                focus:ring-2 focus:ring-blue-500 
+                                focus:ring-offset-2 
+                                transition ease-in-out duration-150"
+                        type="submit"
+                        color="blue"
+                    >
                         {isEditMode ? "Editar" : "Agregar"}
                     </CustomButton>
                 </div>
