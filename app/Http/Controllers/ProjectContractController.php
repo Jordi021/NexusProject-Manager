@@ -13,10 +13,8 @@ use App\Models\User;
 
 use function Pest\Laravel\getConnection;
 
-class ProjectContractController extends Controller
-{
-    public function index()
-    {
+class ProjectContractController extends Controller {
+    public function index() {
         $projectsContracts = $this->getProjectsContracts();
         $contratos = $this->getApprovedContracts();
         $contratosArchivados = $this->getArchivedContracts();
@@ -30,8 +28,7 @@ class ProjectContractController extends Controller
         ]);
     }
 
-    private function getProjectsContracts()
-    {
+    private function getProjectsContracts() {
         return ProjectContract::where('status', 'pending')
             ->orderBy('created_at', 'desc')
             ->get();
@@ -39,8 +36,7 @@ class ProjectContractController extends Controller
     }
 
 
-    private function getApprovedContracts(): array
-    {
+    private function getApprovedContracts(): array {
         $projectContractIds = Contract::pluck('project_contract_id')->toArray();
 
         $projectContracts = ProjectContract::whereIn('id', $projectContractIds)->get()->toArray();
@@ -48,8 +44,7 @@ class ProjectContractController extends Controller
         return $projectContracts;
     }
 
-    private function getArchivedContracts(): array
-    {
+    private function getArchivedContracts(): array {
         $archivedContractIds = ArchivedContract::pluck('project_contract_id')->toArray();
 
         $archivedContracts = ProjectContract::whereIn('id', $archivedContractIds)->get()->toArray();
@@ -57,8 +52,7 @@ class ProjectContractController extends Controller
         return $archivedContracts;
     }
 
-    public function store(Request $request)
-    {
+    public function store(Request $request) {
         $request->validate([
             'customer_id' => 'required|exists:customers,id',
             'problem' => 'required|string',
@@ -76,15 +70,13 @@ class ProjectContractController extends Controller
         return to_route('projects-contracts.index');
     }
 
-    public function destroy($id)
-    {
+    public function destroy($id) {
         ProjectContract::findOrFail($id)->delete();
         return to_route('projects-contracts.index');
     }
 
 
-    public function handleApprove($id)
-    {
+    public function handleApprove($id) {
         $projectContract = ProjectContract::findOrFail($id);
         $projectContract->status = 'approved';
         $projectContract->save();
@@ -97,8 +89,7 @@ class ProjectContractController extends Controller
         return to_route('projects-contracts.index');
     }
 
-    public function handleArchive($id)
-    {
+    public function handleArchive($id) {
         $projectContract = ProjectContract::findOrFail($id);
         $projectContract->status = 'rejected';
         $projectContract->save();
@@ -109,6 +100,15 @@ class ProjectContractController extends Controller
 
 
         //$projectContract->delete();
+
+        return to_route('projects-contracts.index');
+    }
+
+
+    public function handleClose($id) {
+        $projectContract = ProjectContract::findOrFail($id);
+        $projectContract->status = 'close';
+        $projectContract->save();
 
         return to_route('projects-contracts.index');
     }

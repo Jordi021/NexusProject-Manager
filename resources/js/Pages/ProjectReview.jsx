@@ -19,7 +19,6 @@ export default function ProjectReview({
     contratos,
     contratosArchivados,
     clientes,
-    role,
 }) {
     const [activeTab, setActiveTab] = useState("agregarProyectos");
     const renderTab = () => {

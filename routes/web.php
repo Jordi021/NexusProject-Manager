@@ -38,6 +38,7 @@ Route::middleware(['auth', RoleMiddleware::class . ':gerente'])->group(function 
     Route::post('/approve/{id}', [ProjectContractController::class, 'handleApprove'])->name('approve');
     Route::post('/archive/{id}', [ProjectContractController::class, 'handleArchive'])->name('archive');
 
+    Route::post("/close/{id}/", [ProjectContractController::class, "handleClose"])->name("close");
 
     Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
     Route::post('/customers', [CustomerController::class, 'store'])->name('customers.store');

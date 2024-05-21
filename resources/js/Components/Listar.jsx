@@ -1,14 +1,24 @@
 import { useState } from "react";
 import { Chip } from "@material-tailwind/react";
+import Dropdown from "@/Components/Dropdown";
+import { FaEllipsisH } from "react-icons/fa";
+import { useForm } from "@inertiajs/react";
 
 export default function Listar({ contratos, contratosArchivados, clientes }) {
     const [filtro, setFiltro] = useState("Todos");
+    const { post } = useForm();
+
+    const handleClose = (id) => {
+        post(route("close", { id }));
+    };
 
     const contratosFiltrados =
         filtro === "Aprobados"
             ? contratos.filter((contrato) => contrato.status === "approved")
             : filtro === "Archivados"
             ? contratosArchivados
+            : filtro === "Close"
+            ? contratos.filter((contrato) => contrato.status === "close")
             : [...contratos, ...contratosArchivados];
 
     return (
@@ -28,6 +38,7 @@ export default function Listar({ contratos, contratosArchivados, clientes }) {
                 <option value="Todos">All</option>
                 <option value="Aprobados">Approved</option>
                 <option value="Archivados">Archived</option>
+                <option value="Cerrados">Closed</option>
             </select>
 
             {contratosFiltrados.length > 0 ? (
@@ -42,12 +53,18 @@ export default function Listar({ contratos, contratosArchivados, clientes }) {
                                 key={contrato.id}
                                 className="mb-4 p-4 bg-white shadow-md rounded-md"
                             >
-                                <p className="text-lg font-medium text-gray-800 mb-2">
-                                    <span className="font-bold">
-                                        Client Name:
-                                    </span>{" "}
-                                    {cliente.name}
-                                </p>
+                                <div className="flex justify-between">
+                                    <p className="text-lg font-medium text-gray-800 mb-2">
+                                        <span className="font-bold">
+                                            Client Name:
+                                        </span>{" "}
+                                        {cliente.name}
+                                    </p>
+                                    <Options
+                                        id={contrato.id}
+                                        handleClose={handleClose}
+                                    />
+                                </div>
                                 <p className="text-gray-600 mb-2">
                                     <span className="font-bold">Problem:</span>{" "}
                                     {contrato.problem}
@@ -62,6 +79,12 @@ export default function Listar({ contratos, contratosArchivados, clientes }) {
                                     {contrato.status === "approved" ? (
                                         <Chip
                                             color="green"
+                                            value={contrato.status}
+                                            className="w-24"
+                                        />
+                                    ) : contrato.status === "close" ? (
+                                        <Chip
+                                            color="gray"
                                             value={contrato.status}
                                             className="w-24"
                                         />
@@ -83,5 +106,29 @@ export default function Listar({ contratos, contratosArchivados, clientes }) {
                 </p>
             )}
         </div>
+    );
+}
+
+function Options({ id, handleClose }) {
+    return (
+        <>
+            <Dropdown>
+                <Dropdown.Trigger>
+                    <span className="inline-flex rounded-md">
+                        <button
+                            type="button"
+                            className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150"
+                        >
+                            <FaEllipsisH />
+                        </button>
+                    </span>
+                </Dropdown.Trigger>
+                <Dropdown.Content width="32">
+                    <div className="py-2 hover:bg-gray-200 px-5">
+                        <button onClick={() => handleClose(id)}>Close</button>
+                    </div>
+                </Dropdown.Content>
+            </Dropdown>
+        </>
     );
 }
