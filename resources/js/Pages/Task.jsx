@@ -131,7 +131,6 @@ function TaskForm({ projects, analysts, setShowModal }) {
     };
 
     const handleCancel = () => {
-        reset();
         setShowModal(false);
     };
 

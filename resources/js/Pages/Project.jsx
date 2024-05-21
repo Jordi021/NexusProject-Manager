@@ -100,20 +100,20 @@ export default function Project({
                     <div className="mb-4">
                         <InputLabel
                             htmlFor="status"
-                            value="Filtrar por estado"
+                            value="Filter by status"
                         />
                         <SelectInput
                             id="status"
                             name="status"
                             value={selectedStatus}
                             onChange={(e) => setSelectedStatus(e.target.value)}
-                            className="mt-1 block w-full"
+                            className="mt-1 block"
                         >
-                            <option value="">Todos los estados</option>
-                            <option value="Iniciado">Iniciado</option>
-                            <option value="En Desarrollo">En desarrollo</option>
-                            <option value="Cancelado">Cancelado</option>
-                            <option value="Finalizado">Finalizado</option>
+                            <option value="">All the status</option>
+                            <option value="Iniciado">Initiated</option>
+                            <option value="En Desarrollo">Developing</option>
+                            <option value="Cancelado">Cancelled</option>
+                            <option value="Finalizado">Finished</option>
                         </SelectInput>
                     </div>
                     <Table
@@ -469,7 +469,7 @@ function Table({ projects, projectsApproved, selectedStatus, setShowModal }) {
                     </table>
                 </div>
             ) : (
-                <h2>No hay proyectos con el estado seleccionado.</h2>
+                <h2>There are no projects with the selected status.</h2>
             )}
         </>
     );
