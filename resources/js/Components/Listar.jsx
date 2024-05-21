@@ -17,7 +17,7 @@ export default function Listar({ contratos, contratosArchivados, clientes }) {
             ? contratos.filter((contrato) => contrato.status === "approved")
             : filtro === "Archivados"
             ? contratosArchivados
-            : filtro === "Close"
+            : filtro === "Cerrados"
             ? contratos.filter((contrato) => contrato.status === "close")
             : [...contratos, ...contratosArchivados];
 
