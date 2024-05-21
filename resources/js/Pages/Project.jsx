@@ -37,6 +37,8 @@ export default function Project({
         contract_id: "",
     });
 
+    const [selectedStatus, setSelectedStatus] = useState("");
+
     const handleModalClose = () => {
         setEditMode(false);
         setProjectData({
@@ -96,10 +98,30 @@ export default function Project({
                     />
                 </Modal>
                 <Canvas>
+                    <div className="mb-4">
+                        <InputLabel
+                            htmlFor="status"
+                            value="Filtrar por estado"
+                        />
+                        <SelectInput
+                            id="status"
+                            name="status"
+                            value={selectedStatus}
+                            onChange={(e) => setSelectedStatus(e.target.value)}
+                            className="mt-1 block w-full"
+                        >
+                            <option value="">Todos los estados</option>
+                            <option value="Iniciado">Iniciado</option>
+                            <option value="En Desarrollo">En desarrollo</option>
+                            <option value="Cancelado">Cancelado</option>
+                            <option value="Finalizado">Finalizado</option>
+                        </SelectInput>
+                    </div>
                     <Table
                         projects={projects}
-                        setShowModal={setShowModal}
                         projectsApproved={projectsApproved}
+                        selectedStatus={selectedStatus}
+                        setShowModal={setShowModal}
                     />
                 </Canvas>
             </ProjectContext.Provider>
@@ -386,10 +408,15 @@ function TableRow({ proyecto, customerName, setShowModal }) {
     );
 }
 
-function Table({ projects, projectsApproved, setShowModal }) {
+function Table({ projects, projectsApproved, selectedStatus, setShowModal }) {
+    // Filtrar los proyectos según el estado seleccionado
+    const filteredProjects = selectedStatus
+        ? projects.filter((project) => project.status === selectedStatus)
+        : projects;
+
     return (
         <>
-            {projects.length > 0 ? (
+            {filteredProjects.length > 0 ? (
                 <table className="min-w-full divide-y divide-gray-200 rounded-lg overflow-hidden">
                     <thead className="bg-gray-100">
                         <tr>
@@ -403,7 +430,7 @@ function Table({ projects, projectsApproved, setShowModal }) {
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                        {projects.map((project) => {
+                        {filteredProjects.map((project) => {
                             const approvedProject = projectsApproved.find(
                                 (pa) => pa.id === project.contract_id
                             );
@@ -420,7 +447,7 @@ function Table({ projects, projectsApproved, setShowModal }) {
                     </tbody>
                 </table>
             ) : (
-                <h2>No hay proyectos, agrega uno.</h2>
+                <h2>No hay proyectos con el estado seleccionado.</h2>
             )}
         </>
     );
