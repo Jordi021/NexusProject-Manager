@@ -1,134 +1,94 @@
-import { useState } from "react";
-import { Chip } from "@material-tailwind/react";
-import Dropdown from "@/Components/Dropdown";
-import { FaEllipsisH } from "react-icons/fa";
-import { useForm } from "@inertiajs/react";
+import Authenticated from "@/Layouts/AuthenticatedLayout";
+import { Head } from "@inertiajs/react";
 
-export default function Listar({ contratos, contratosArchivados, clientes }) {
-    const [filtro, setFiltro] = useState("Todos");
-    const { post } = useForm();
-
-    const handleClose = (id) => {
-        post(route("close", { id }));
-    };
-
-    const contratosFiltrados =
-        filtro === "Aprobados"
-            ? contratos.filter((contrato) => contrato.status === "approved")
-            : filtro === "Archivados"
-            ? contratosArchivados
-            : filtro === "Cerrados"
-            ? contratos.filter((contrato) => contrato.status === "close")
-            : [...contratos, ...contratosArchivados];
-
+export default function About({ auth, role }) {
     return (
-        <div className="max-w-lg mx-auto">
-            <label
-                htmlFor="filtro"
-                className="block mb-2 text-lg font-medium text-gray-700"
-            >
-                Filter by:
-            </label>
-            <select
-                id="filtro"
-                value={filtro}
-                onChange={(e) => setFiltro(e.target.value)}
-                className="w-full px-4 py-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500"
-            >
-                <option value="Todos">All</option>
-                <option value="Aprobados">Approved</option>
-                <option value="Archivados">Archived</option>
-                <option value="Cerrados">Closed</option>
-            </select>
-
-            {contratosFiltrados.length > 0 ? (
-                <ul>
-                    {contratosFiltrados.map((contrato) => {
-                        const cliente = clientes.find(
-                            (cliente) => cliente.id === contrato.customer_id
-                        );
-
-                        return (
-                            <li
-                                key={contrato.id}
-                                className="mb-4 p-4 bg-white shadow-md rounded-md"
-                            >
-                                <div className="flex justify-between">
-                                    <p className="text-lg font-medium text-gray-800 mb-2">
-                                        <span className="font-bold">
-                                            Client Name:
-                                        </span>{" "}
-                                        {cliente.name}
-                                    </p>
-                                    <Options
-                                        id={contrato.id}
-                                        handleClose={handleClose}
-                                    />
-                                </div>
-                                <p className="text-gray-600 mb-2">
-                                    <span className="font-bold">Problem:</span>{" "}
-                                    {contrato.problem}
-                                </p>
-                                <p className="text-gray-600 mb-2">
-                                    <span className="font-bold">
-                                        Requirements:
-                                    </span>{" "}
-                                    {contrato.requirements}
-                                </p>
-                                <div className="text-gray-600">
-                                    {contrato.status === "approved" ? (
-                                        <Chip
-                                            color="green"
-                                            value={contrato.status}
-                                            className="w-24"
-                                        />
-                                    ) : contrato.status === "close" ? (
-                                        <Chip
-                                            color="gray"
-                                            value={contrato.status}
-                                            className="w-24"
-                                        />
-                                    ) : (
-                                        <Chip
-                                            color="red"
-                                            value={contrato.status}
-                                            className="w-24"
-                                        />
-                                    )}
-                                </div>
-                            </li>
-                        );
-                    })}
-                </ul>
-            ) : (
-                <p className="text-lg text-gray-800">
-                    There are no reviewed projects, yet...
-                </p>
-            )}
-        </div>
-    );
-}
-
-function Options({ id, handleClose }) {
-    return (
-        <>
-            <Dropdown>
-                <Dropdown.Trigger>
-                    <span className="inline-flex rounded-md">
-                        <button
-                            type="button"
-                            className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150"
-                        >
-                            <FaEllipsisH />
-                        </button>
-                    </span>
-                </Dropdown.Trigger>
-                <Dropdown.Content width="32">
-                    <div className="py-2 hover:bg-gray-200 px-5">
-                        <button onClick={() => handleClose(id)}>Close</button>
+        <Authenticated
+            user={auth.user}
+            header={<h2 className="text-2xl">All about Nexus</h2>}
+            role={role}
+        >
+            <Head title="About" />
+            <div className="mt-5 bg-white overflow-hidden shadow-sm sm:rounded-lg max-w-5xl mx-auto p-10">
+                <div className="pt-4 max-w-5xl mx-auto sm:px-6 lg:px-8">
+                    <div className="flex justify-center mb-4">
+                        <img
+                            src="/Nexus.svg"
+                            alt="Nexus Logo"
+                            className="w-24 h-auto"
+                        />
                     </div>
-                </Dropdown.Content>
-            </Dropdown>
-        </>
+                </div>
+                <div className="text-justify">
+                    <p>
+                        <span className="font-bold text-lg">About Nexus</span>
+                        <br />
+                        Welcome to Nexus, where technological innovation meets
+                        service excellence to provide solutions that transform
+                        lives. At Nexus, we are dedicated to offering
+                        high-quality technological products and services,
+                        constantly adapting to the needs of the market and our
+                        customers.
+                    </p>
+                    <p>
+                        <span className="font-bold text-lg">Our Divisions</span>
+                        <br />
+                        <strong>Computer Sales:</strong> We offer a wide range
+                        of computers, from basic models to powerful high-end
+                        machines, all subjected to rigorous quality controls to
+                        ensure the best for our customers.
+                        <br />
+                        <strong>Custom Software Development:</strong> We
+                        specialize in creating tailored software solutions
+                        designed to meet specific needs. Our team transforms
+                        ideas into technological realities, from enterprise
+                        applications to mobile platforms.
+                    </p>
+                    <p>
+                        <span className="font-bold text-lg">
+                            Innovation and Growth
+                        </span>
+                        <br />
+                        Our growth in software development reflects our
+                        dedication and expertise. We implement advanced project
+                        management strategies to ensure that every IT system is
+                        delivered on time, within budget, and with the highest
+                        quality.
+                    </p>
+                    <p>
+                        <span className="font-bold text-lg">Our Mission</span>
+                        <br />
+                        To empower our clients with technology that exceeds
+                        their expectations. We aim to be more than a provider;
+                        we aspire to be a strategic partner on their path to
+                        success.
+                    </p>
+                    <p>
+                        <span className="font-bold text-lg">
+                            Our Commitment
+                        </span>
+                        <br />
+                        <strong>Unmatched Quality:</strong> Products and
+                        services that stand out for their quality and
+                        reliability.
+                        <br />
+                        <strong>Continuous Innovation:</strong> Staying at the
+                        forefront of technological trends.
+                        <br />
+                        <strong>Personalized Attention:</strong> A unique
+                        approach for each client.
+                        <br />
+                        <strong>Comprehensive Support:</strong> We accompany our
+                        clients every step of the way.
+                    </p>
+                    <p>
+                        At Nexus, technology is our passion and excellence is
+                        our standard. Join us and discover how we can help you
+                        reach new heights in the digital world. Welcome to
+                        Nexus!
+                    </p>
+                </div>
+            </div>
+        </Authenticated>
     );
 }
