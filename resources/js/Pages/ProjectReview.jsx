@@ -18,6 +18,7 @@ export default function ProjectReview({
     projectsContracts,
     contratos,
     contratosArchivados,
+    contratosCerrados,
     clientes,
 }) {
     const [activeTab, setActiveTab] = useState("agregarProyectos");
@@ -40,6 +41,7 @@ export default function ProjectReview({
                         <Listar
                             contratos={contratos}
                             contratosArchivados={contratosArchivados}
+                            contratosCerrados={contratosCerrados}
                             clientes={clientes}
                         />
                     </>

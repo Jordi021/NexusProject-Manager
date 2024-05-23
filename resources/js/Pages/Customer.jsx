@@ -92,7 +92,7 @@ function List({ customers }) {
     return (
         <div className="w-11/12 mx-auto mt-8 bg-white rounded-lg shadow-lg p-8">
             {customers.length < 1 ? (
-                <h2>No hay clientes todavía...</h2>
+                <h2>No customers yet...</h2>
             ) : (
                 <Table>
                     {customers.map((customer) => (
@@ -217,7 +217,6 @@ function CustomerForm() {
             handleEdit(false);
         }
     }, [isEditMode, handleEdit]);
-
 
     return (
         <div>

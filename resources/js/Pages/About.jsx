@@ -4,12 +4,7 @@ import Dropdown from "@/Components/Dropdown";
 import { FaEllipsisH } from "react-icons/fa";
 import { useForm } from "@inertiajs/react";
 
-export default function Listar({
-    contratos,
-    contratosArchivados,
-    clientes,
-    contratosCerrados,
-}) {
+export default function Listar({ contratos, contratosArchivados, clientes }) {
     const [filtro, setFiltro] = useState("Todos");
     const { post } = useForm();
 
@@ -19,12 +14,12 @@ export default function Listar({
 
     const contratosFiltrados =
         filtro === "Aprobados"
-            ? contratos
+            ? contratos.filter((contrato) => contrato.status === "approved")
             : filtro === "Archivados"
             ? contratosArchivados
             : filtro === "Cerrados"
-            ? contratosCerrados
-            : [...contratos, ...contratosArchivados, ...contratosCerrados];
+            ? contratos.filter((contrato) => contrato.status === "close")
+            : [...contratos, ...contratosArchivados];
 
     return (
         <div className="max-w-lg mx-auto">
@@ -80,7 +75,7 @@ export default function Listar({
                                     </span>{" "}
                                     {contrato.requirements}
                                 </p>
-                                <div className="text-gray-600 w-24">
+                                <div className="text-gray-600">
                                     {contrato.status === "approved" ? (
                                         <Chip
                                             color="green"
@@ -97,7 +92,7 @@ export default function Listar({
                                         <Chip
                                             color="red"
                                             value={contrato.status}
-                                            className="px-4"
+                                            className="w-24"
                                         />
                                     )}
                                 </div>

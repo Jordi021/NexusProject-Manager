@@ -70,5 +70,12 @@ Route::middleware(["auth", RoleMiddleware::class . ":analista"])->group(
     }
 );
 
+Route::get("/about", function () {
+    $userID = Auth::getUser()->id;
+    $user = User::findOrFail($userID);
+    $role = $user->getRoleNames()->first();
+    return Inertia::render("About", ["role" => $role]);
+})->name("about");
+
 
 require __DIR__ . '/auth.php';

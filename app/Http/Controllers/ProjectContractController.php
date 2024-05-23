@@ -8,22 +8,20 @@ use Illuminate\Http\Request;
 use App\Models\Contract;
 use App\Models\ArchivedContract;
 use App\Models\Customer;
-use Illuminate\Support\Facades\Auth;
-use App\Models\User;
-
-use function Pest\Laravel\getConnection;
 
 class ProjectContractController extends Controller {
     public function index() {
         $projectsContracts = $this->getProjectsContracts();
         $contratos = $this->getApprovedContracts();
         $contratosArchivados = $this->getArchivedContracts();
+        $contratosCerrados = $this->getClosedContracts();
         $clientes = Customer::all();
 
         return Inertia::render('ProjectReview', [
             "projectsContracts" => $projectsContracts,
             "contratos" => $contratos,
             "contratosArchivados" => $contratosArchivados,
+            "contratosCerrados" => $contratosCerrados,
             "clientes" => $clientes,
         ]);
     }
@@ -32,7 +30,6 @@ class ProjectContractController extends Controller {
         return ProjectContract::where('status', 'pending')
             ->orderBy('created_at', 'desc')
             ->get();
-        // return ProjectContract::where('status', 'pending')->get();
     }
 
 
@@ -45,11 +42,11 @@ class ProjectContractController extends Controller {
     }
 
     private function getArchivedContracts(): array {
-        $archivedContractIds = ArchivedContract::pluck('project_contract_id')->toArray();
+        return ProjectContract::where('status', 'rejected')->get()->toArray();
+    }
 
-        $archivedContracts = ProjectContract::whereIn('id', $archivedContractIds)->get()->toArray();
-
-        return $archivedContracts;
+    private function getClosedContracts(): array {
+        return ProjectContract::where('status', 'close')->get()->toArray();
     }
 
     public function store(Request $request) {
